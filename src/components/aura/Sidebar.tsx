@@ -56,8 +56,8 @@ export default function Sidebar() {
   return (
     <div className="hidden md:flex flex-col w-52 h-full flex-shrink-0" style={{ zIndex: 10, position: 'relative' }}>
       <div className="glass-panel m-1.5 mr-0 flex flex-col" style={{ height: 'calc(100vh - 76px)' }}>
-        {/* Logo */}
-        <div className="flex items-center justify-between px-3 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        {/* Logo + auth */}
+        <div className="px-3 py-3 space-y-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
           <div className="flex items-center gap-2.5 min-w-0">
             <Disc3 size={20} className="text-white flex-shrink-0" strokeWidth={2} />
             <div className="min-w-0">
