@@ -73,8 +73,8 @@ function maybeStartFadeOut(audio: HTMLAudioElement) {
 function Art({ id, title, cls = 'w-12 h-12', sz = 20 }: { id: string; title: string; cls?: string; sz?: number }) {
   const s = getArtworkUrl(id);
   return (
-    <div className={`${cls} overflow-hidden flex-shrink-0`} style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)' }}>
-      {s ? <img src={s} alt={title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-white/10"><ListMusic size={sz} strokeWidth={1.5} /></div>}
+    <div className={`${cls} overflow-hidden flex-shrink-0`} style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.1)', background: 'var(--art-bg)' }}>
+      {s ? <img src={s} alt={title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-foreground/10"><ListMusic size={sz} strokeWidth={1.5} /></div>}
     </div>
   );
 }
@@ -82,8 +82,8 @@ function Art({ id, title, cls = 'w-12 h-12', sz = 20 }: { id: string; title: str
 function PlayBtn({ sz, isz, playing, onToggle }: { sz: string; isz: number; playing: boolean; onToggle: () => void }) {
   return (
     <button
-      className={`${sz} flex items-center justify-center text-white transition-all active:scale-95`}
-      style={{ border: '1px solid rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.06)', minWidth: sz.includes('h-14') ? 56 : sz.includes('h-9') ? 36 : 32, minHeight: sz.includes('h-14') ? 56 : sz.includes('h-9') ? 36 : 32 }}
+      className={`${sz} flex items-center justify-center text-foreground transition-all active:scale-95`}
+      style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.3)', background: 'rgb(var(--rgb-foreground) / 0.06)', minWidth: sz.includes('h-14') ? 56 : sz.includes('h-9') ? 36 : 32, minHeight: sz.includes('h-14') ? 56 : sz.includes('h-9') ? 36 : 32 }}
       onClick={onToggle}
     >
       {playing ? <Pause size={isz} strokeWidth={2} /> : <Play size={isz} strokeWidth={2} className="ml-0.5" />}
@@ -229,31 +229,31 @@ export default function Player() {
         <div className="flex items-center gap-3 min-w-0 flex-shrink-0 w-60">
           <Art id={song.id} title={song.title} />
           <div className="min-w-0">
-            <p className="text-[11px] font-bold text-white truncate uppercase tracking-wide">{song.title}</p>
-            <p className="text-[9px] text-white/25 truncate uppercase">{song.artist}</p>
+            <p className="text-[11px] font-bold text-foreground truncate uppercase tracking-wide">{song.title}</p>
+            <p className="text-[9px] text-foreground/25 truncate uppercase">{song.artist}</p>
           </div>
         </div>
         <div className="flex-1 flex flex-col items-center gap-1 max-w-xl mx-auto">
           <div className="flex items-center gap-2">
-            <button className={`h-8 w-8 flex items-center justify-center text-white/25 hover:text-white/70 ${sf ? '!text-[#FF2D2D]' : ''}`} onClick={toggleShuffle}><Shuffle size={13} strokeWidth={2} /></button>
-            <button className="h-8 w-8 flex items-center justify-center text-white/40 hover:text-white" onClick={handlePrev}><SkipBack size={15} strokeWidth={2} /></button>
+            <button className={`h-8 w-8 flex items-center justify-center text-foreground/25 hover:text-foreground/70 ${sf ? '!text-(--accent)' : ''}`} onClick={toggleShuffle}><Shuffle size={13} strokeWidth={2} /></button>
+            <button className="h-8 w-8 flex items-center justify-center text-foreground/40 hover:text-foreground" onClick={handlePrev}><SkipBack size={15} strokeWidth={2} /></button>
             <PlayBtn sz="h-9 w-9" isz={18} playing={ip} onToggle={tog} />
-            <button className="h-8 w-8 flex items-center justify-center text-white/40 hover:text-white" onClick={handleNext}><SkipForward size={15} strokeWidth={2} /></button>
-            <button className={`h-8 w-8 flex items-center justify-center text-white/25 hover:text-white/70 ${rp !== 'off' ? '!text-[#FF2D2D]' : ''}`} onClick={toggleRepeat}>{rp === 'one' ? <Repeat1 size={13} strokeWidth={2} /> : <Repeat size={13} strokeWidth={2} />}</button>
+            <button className="h-8 w-8 flex items-center justify-center text-foreground/40 hover:text-foreground" onClick={handleNext}><SkipForward size={15} strokeWidth={2} /></button>
+            <button className={`h-8 w-8 flex items-center justify-center text-foreground/25 hover:text-foreground/70 ${rp !== 'off' ? '!text-(--accent)' : ''}`} onClick={toggleRepeat}>{rp === 'one' ? <Repeat1 size={13} strokeWidth={2} /> : <Repeat size={13} strokeWidth={2} />}</button>
           </div>
-          <div className="flex items-center gap-2 w-full text-[9px] text-white/20 uppercase tracking-wider">
+          <div className="flex items-center gap-2 w-full text-[9px] text-foreground/20 uppercase tracking-wider">
             <span className="w-10 text-right tabular-nums font-bold">{formatDuration(ct)}</span>
             <Slider value={[ct]} min={0} max={du || 100} step={0.1} onValueChange={sk} onPointerDown={() => setDr(true)} onPointerUp={() => setDr(false)} className="flex-1 brutal-slider" />
             <span className="w-10 tabular-nums font-bold">{formatDuration(du)}</span>
           </div>
         </div>
         <div className="flex items-center gap-1 w-52 justify-end flex-shrink-0">
-          <button className={`h-8 w-8 flex items-center justify-center ${isFav ? 'text-[#FF2D2D]' : 'text-white/20 hover:text-white/60'}`} onClick={handleFavorite}><Heart size={14} strokeWidth={2} fill={isFav ? 'currentColor' : 'none'} /></button>
-          <button className={`h-8 w-8 flex items-center justify-center ${showLyrics ? 'text-white/60' : 'text-white/20 hover:text-white/60'}`} onClick={() => setShowLyrics(!showLyrics)}><Mic size={14} strokeWidth={2} /></button>
-          <button className="h-8 w-8 flex items-center justify-center text-white/20 hover:text-white/60" onClick={toggleMute}><VI size={14} strokeWidth={2} /></button>
+          <button className={`h-8 w-8 flex items-center justify-center ${isFav ? 'text-(--accent)' : 'text-foreground/20 hover:text-foreground/60'}`} onClick={handleFavorite}><Heart size={14} strokeWidth={2} fill={isFav ? 'currentColor' : 'none'} /></button>
+          <button className={`h-8 w-8 flex items-center justify-center ${showLyrics ? 'text-foreground/60' : 'text-foreground/20 hover:text-foreground/60'}`} onClick={() => setShowLyrics(!showLyrics)}><Mic size={14} strokeWidth={2} /></button>
+          <button className="h-8 w-8 flex items-center justify-center text-foreground/20 hover:text-foreground/60" onClick={toggleMute}><VI size={14} strokeWidth={2} /></button>
           <Slider value={[mu ? 0 : vo]} min={0} max={1} step={0.01} onValueChange={sv} className="w-16 brutal-slider-sm" />
-          <button className={`h-8 w-8 flex items-center justify-center ${showQueue ? 'text-white/60' : 'text-white/20 hover:text-white/60'}`} onClick={() => setShowQueue(!showQueue)}><ListMusic size={14} strokeWidth={2} /></button>
-          <button className="h-8 w-8 flex items-center justify-center text-white/20 hover:text-white/60" onClick={() => setFullscreen(!fsc)}>{fsc ? <Minimize2 size={14} /> : <Maximize2 size={14} />}</button>
+          <button className={`h-8 w-8 flex items-center justify-center ${showQueue ? 'text-foreground/60' : 'text-foreground/20 hover:text-foreground/60'}`} onClick={() => setShowQueue(!showQueue)}><ListMusic size={14} strokeWidth={2} /></button>
+          <button className="h-8 w-8 flex items-center justify-center text-foreground/20 hover:text-foreground/60" onClick={() => setFullscreen(!fsc)}>{fsc ? <Minimize2 size={14} /> : <Maximize2 size={14} />}</button>
         </div>
       </div>
     </div>
@@ -269,12 +269,12 @@ export default function Player() {
           <div className="glass-panel p-2 flex items-center gap-2">
             <Art id={song.id} title={song.title} cls="w-10 h-10" sz={14} />
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-bold text-white truncate uppercase">{song.title}</p>
-              <p className="text-[8px] text-white/25 truncate uppercase">{song.artist}</p>
+              <p className="text-[11px] font-bold text-foreground truncate uppercase">{song.title}</p>
+              <p className="text-[8px] text-foreground/25 truncate uppercase">{song.artist}</p>
             </div>
             <PlayBtn sz="h-8 w-8" isz={14} playing={ip} onToggle={tog} />
-            <button className="h-10 w-10 flex items-center justify-center text-white/40 hover:text-white" onClick={handleNext}><SkipForward size={16} strokeWidth={2} /></button>
-            <button className="h-10 w-10 flex items-center justify-center text-white/40 hover:text-white" onClick={() => setFullscreen(true)}><ChevronDown size={18} className="rotate-180" /></button>
+            <button className="h-10 w-10 flex items-center justify-center text-foreground/40 hover:text-foreground" onClick={handleNext}><SkipForward size={16} strokeWidth={2} /></button>
+            <button className="h-10 w-10 flex items-center justify-center text-foreground/40 hover:text-foreground" onClick={() => setFullscreen(true)}><ChevronDown size={18} className="rotate-180" /></button>
           </div>
         </motion.div>
       )}
@@ -287,43 +287,43 @@ export default function Player() {
           initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 30, stiffness: 300 }}
           className="fixed inset-0 flex flex-col"
-          style={{ zIndex: 100, background: 'rgba(8, 6, 16, 0.92)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', borderTop: '1px solid rgba(255,255,255,0.08)' }}
+          style={{ zIndex: 100, background: 'var(--fullscreen-bg)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', borderTop: '1px solid rgb(var(--rgb-foreground) / 0.08)' }}
         >
-          <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-            <button className="text-white/40 hover:text-white p-1" onClick={() => setFullscreen(false)}><ChevronDown size={22} /></button>
+          <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid rgb(var(--rgb-foreground) / 0.06)' }}>
+            <button className="text-foreground/40 hover:text-foreground p-1" onClick={() => setFullscreen(false)}><ChevronDown size={22} /></button>
             <p className="brutal-label">NOW PLAYING</p>
             <div className="flex items-center gap-1">
-              <button className={`p-1.5 ${showLyrics ? 'text-[#FF2D2D]' : 'text-white/40 hover:text-white'}`} onClick={() => setShowLyrics(!showLyrics)}><Mic size={17} /></button>
-              <button className="text-white/40 hover:text-white p-1" onClick={() => setShowQueue(true)}><ListMusic size={18} /></button>
+              <button className={`p-1.5 ${showLyrics ? 'text-(--accent)' : 'text-foreground/40 hover:text-foreground'}`} onClick={() => setShowLyrics(!showLyrics)}><Mic size={17} /></button>
+              <button className="text-foreground/40 hover:text-foreground p-1" onClick={() => setShowQueue(true)}><ListMusic size={18} /></button>
             </div>
           </div>
           <div className="flex-1 flex items-center justify-center px-8 py-4">
-            <div className="w-full max-w-xs aspect-square overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 0 60px rgba(120, 80, 255, 0.15)' }}>
+            <div className="w-full max-w-xs aspect-square overflow-hidden" style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.1)', boxShadow: '0 0 60px rgba(120, 80, 255, 0.15)' }}>
               <Art id={song.id} title={song.title} cls="w-full h-full" sz={80} />
             </div>
           </div>
           <div className="px-5 pb-8">
             <div className="flex items-center justify-between mb-3">
               <div className="min-w-0 flex-1 mr-3">
-                <h2 className="text-base font-extrabold text-white truncate uppercase tracking-wide">{song.title}</h2>
-                <p className="text-[10px] text-white/25 uppercase tracking-wider mt-0.5">{song.artist}{song.album ? ` // ${song.album}` : ''}</p>
+                <h2 className="text-base font-extrabold text-foreground truncate uppercase tracking-wide">{song.title}</h2>
+                <p className="text-[10px] text-foreground/25 uppercase tracking-wider mt-0.5">{song.artist}{song.album ? ` // ${song.album}` : ''}</p>
               </div>
-              <button className={`h-10 w-10 flex items-center justify-center flex-shrink-0 ${isFav ? 'text-[#FF2D2D]' : 'text-white/20'}`} onClick={handleFavorite}>
+              <button className={`h-10 w-10 flex items-center justify-center flex-shrink-0 ${isFav ? 'text-(--accent)' : 'text-foreground/20'}`} onClick={handleFavorite}>
                 <Heart size={18} strokeWidth={2} fill={isFav ? 'currentColor' : 'none'} />
               </button>
             </div>
             <div className="mt-3">
               <Slider value={[ct]} min={0} max={du || 100} step={0.1} onValueChange={sk} onPointerDown={() => setDr(true)} onPointerUp={() => setDr(false)} className="w-full brutal-slider" />
-              <div className="flex justify-between mt-1.5 text-[9px] text-white/20 uppercase tracking-wider tabular-nums font-bold">
+              <div className="flex justify-between mt-1.5 text-[9px] text-foreground/20 uppercase tracking-wider tabular-nums font-bold">
                 <span>{formatDuration(ct)}</span><span>{formatDuration(du)}</span>
               </div>
             </div>
             <div className="flex items-center justify-center gap-5 mt-5">
-              <button className={`h-11 w-11 flex items-center justify-center ${sf ? 'text-[#FF2D2D]' : 'text-white/25'}`} onClick={toggleShuffle}><Shuffle size={18} strokeWidth={2} /></button>
-              <button className="h-11 w-11 flex items-center justify-center text-white/40" onClick={handlePrev}><SkipBack size={24} strokeWidth={2} /></button>
+              <button className={`h-11 w-11 flex items-center justify-center ${sf ? 'text-(--accent)' : 'text-foreground/25'}`} onClick={toggleShuffle}><Shuffle size={18} strokeWidth={2} /></button>
+              <button className="h-11 w-11 flex items-center justify-center text-foreground/40" onClick={handlePrev}><SkipBack size={24} strokeWidth={2} /></button>
               <PlayBtn sz="h-14 w-14" isz={28} playing={ip} onToggle={tog} />
-              <button className="h-11 w-11 flex items-center justify-center text-white/40" onClick={handleNext}><SkipForward size={24} strokeWidth={2} /></button>
-              <button className={`h-11 w-11 flex items-center justify-center ${rp !== 'off' ? 'text-[#FF2D2D]' : 'text-white/25'}`} onClick={toggleRepeat}>{rp === 'one' ? <Repeat1 size={18} strokeWidth={2} /> : <Repeat size={18} strokeWidth={2} />}</button>
+              <button className="h-11 w-11 flex items-center justify-center text-foreground/40" onClick={handleNext}><SkipForward size={24} strokeWidth={2} /></button>
+              <button className={`h-11 w-11 flex items-center justify-center ${rp !== 'off' ? 'text-(--accent)' : 'text-foreground/25'}`} onClick={toggleRepeat}>{rp === 'one' ? <Repeat1 size={18} strokeWidth={2} /> : <Repeat size={18} strokeWidth={2} />}</button>
             </div>
           </div>
         </motion.div>

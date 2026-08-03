@@ -51,9 +51,9 @@ export default function AppToaster() {
 
   const borderColor = (type: ToastItem['type']) => {
     if (type === 'success') return '#22c55e';
-    if (type === 'error') return '#FF2D2D';
+    if (type === 'error') return 'var(--accent)';
     if (type === 'warning') return '#f59e0b';
-    return 'rgba(255,255,255,0.2)';
+    return 'rgb(var(--rgb-foreground) / 0.2)';
   };
 
   if (!toasts.length) return null;
@@ -66,7 +66,7 @@ export default function AppToaster() {
       {toasts.map(t => (
         <div
           key={t.id}
-          className="flex items-center gap-2.5 px-4 py-3 text-white text-[11px] font-bold uppercase tracking-wider animate-in slide-in-from-right"
+          className="flex items-center gap-2.5 px-4 py-3 text-foreground text-[11px] font-bold uppercase tracking-wider animate-in slide-in-from-right"
           style={{
             background: 'rgba(18,18,24,0.95)',
             backdropFilter: 'blur(16px)',
@@ -77,7 +77,7 @@ export default function AppToaster() {
         >
           <p className="flex-1 min-w-0 break-words" style={{ lineHeight: 1.4 }}>{t.message}</p>
           <button
-            className="text-white/30 hover:text-white flex-shrink-0 p-0.5"
+            className="text-foreground/30 hover:text-foreground flex-shrink-0 p-0.5"
             onClick={() => dismiss(t.id)}
           >
             <X size={12} strokeWidth={2} />

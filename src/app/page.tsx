@@ -22,8 +22,12 @@ import AppToaster from '@/components/ui/AppToaster';
 import { appToast as toast } from '@/components/ui/AppToaster';
 
 export default function Home() {
-  const { currentTab, setIsLoading, setSongs, setGenres, setArtists, filteredSongs, songs, showSettings, setShowSettings } = usePlayerStore();
+  const { currentTab, setIsLoading, setSongs, setGenres, setArtists, filteredSongs, songs, showSettings, setShowSettings, theme } = usePlayerStore();
   const [scanning, setScanning] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -58,8 +62,8 @@ export default function Home() {
           {/* Top bar */}
           <div className="flex items-center gap-2 px-3 pt-2 pb-1.5">
             <div className="md:hidden flex items-center gap-2 mr-auto">
-              <Music size={15} className="text-white" strokeWidth={2} />
-              <span className="text-[11px] font-extrabold uppercase tracking-[0.15em] text-white">WAVR</span>
+              <Music size={15} className="text-foreground" strokeWidth={2} />
+              <span className="text-[11px] font-extrabold uppercase tracking-[0.15em] text-foreground">WAVR</span>
             </div>
             <div className="hidden md:block flex-1 max-w-sm mx-auto">
               <SearchBar />
@@ -68,8 +72,8 @@ export default function Home() {
               <AuthModal compact />
               <button
                 onClick={() => setShowSettings(true)}
-                className="h-8 w-8 flex items-center justify-center text-white/40 hover:text-white transition-colors"
-                style={{ border: '1px solid rgba(255,255,255,0.08)' }}
+                className="h-8 w-8 flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors"
+                style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.08)' }}
               >
                 <Settings size={14} strokeWidth={2} />
               </button>
@@ -94,7 +98,7 @@ export default function Home() {
                 <motion.div key="library" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full flex flex-col">
                   <div className="md:hidden flex items-center justify-between mb-1.5 px-1">
                     <div>
-                      <h2 className="text-[12px] font-extrabold uppercase tracking-widest text-white">YOUR LIBRARY</h2>
+                      <h2 className="text-[12px] font-extrabold uppercase tracking-widest text-foreground">YOUR LIBRARY</h2>
                       <p className="brutal-label mt-0.5">{songs.length} TRACKS</p>
                     </div>
                     <div className="flex items-center gap-1.5">
@@ -105,9 +109,9 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="hidden md:flex items-center justify-between mb-2">
-                    <h2 className="text-xs font-extrabold uppercase tracking-widest text-white">
+                    <h2 className="text-xs font-extrabold uppercase tracking-widest text-foreground">
                       {filteredSongs.length === songs.length ? 'ALL TRACKS' : 'FILTERED'}
-                      <span className="text-white/20 ml-2">[{filteredSongs.length}]</span>
+                      <span className="text-foreground/20 ml-2">[{filteredSongs.length}]</span>
                     </h2>
                     <button className="brutal-btn brutal-btn-sm" disabled={scanning} onClick={handleRescan}>
                       {scanning ? <Loader2 size={10} className="mr-1 animate-spin" /> : <RefreshCw size={10} className="mr-1" />}{scanning ? 'SCANNING' : 'RESCAN DISK'}
@@ -120,7 +124,7 @@ export default function Home() {
               {currentTab === 'search' && (
                 <motion.div key="search" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full flex flex-col">
                   <div className="md:hidden mb-1.5 px-1">
-                    <h2 className="text-[12px] font-extrabold uppercase tracking-widest text-white">SEARCH &amp; FILTER</h2>
+                    <h2 className="text-[12px] font-extrabold uppercase tracking-widest text-foreground">SEARCH &amp; FILTER</h2>
                   </div>
                   <div className="flex-1 min-h-0 overflow-y-auto custom-scroll pb-24 md:pb-20"><TrackList /></div>
                 </motion.div>
@@ -129,7 +133,7 @@ export default function Home() {
               {currentTab === 'playlists' && (
                 <motion.div key="playlists" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full flex flex-col">
                   <div className="md:hidden mb-1.5 px-1">
-                    <h2 className="text-[12px] font-extrabold uppercase tracking-widest text-white">PLAYLISTS</h2>
+                    <h2 className="text-[12px] font-extrabold uppercase tracking-widest text-foreground">PLAYLISTS</h2>
                   </div>
                   <PlaylistPanel />
                 </motion.div>
@@ -138,7 +142,7 @@ export default function Home() {
               {currentTab === 'upload' && (
                 <motion.div key="upload" initial={{ opacity: 0 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className="h-full flex flex-col">
                   <div className="mb-2 px-1">
-                    <h2 className="text-[12px] font-extrabold uppercase tracking-widest text-white">UPLOAD</h2>
+                    <h2 className="text-[12px] font-extrabold uppercase tracking-widest text-foreground">UPLOAD</h2>
                     <p className="brutal-label mt-0.5">METADATA EXTRACTED AUTOMATICALLY</p>
                   </div>
                   <div className="flex-1 overflow-y-auto custom-scroll pb-24 md:pb-20"><UploadZone /></div>

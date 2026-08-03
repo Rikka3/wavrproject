@@ -158,10 +158,10 @@ export default function UploadZone() {
     <div className="space-y-3">
       {/* Drop zone */}
       <div
-        className={`p-8 md:p-12 text-center transition-all ${dragging ? '' : 'hover:border-white/20'}`}
+        className={`p-8 md:p-12 text-center transition-all ${dragging ? '' : 'hover:border-foreground/20'}`}
         style={{
-          border: `1px dashed ${dragging ? 'rgba(255,45,45,0.6)' : 'rgba(255,255,255,0.1)'}`,
-          background: dragging ? 'rgba(255,45,45,0.04)' : 'rgba(18,18,24,0.35)',
+          border: `1px dashed ${dragging ? 'rgb(var(--rgb-accent) / 0.6)' : 'rgb(var(--rgb-foreground) / 0.1)'}`,
+          background: dragging ? 'rgb(var(--rgb-accent) / 0.04)' : 'rgba(18,18,24,0.35)',
           backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
         }}
         onDrop={onDrop} onDragOver={onDragOver} onDragLeave={onDragLeave}
@@ -171,10 +171,10 @@ export default function UploadZone() {
           onChange={(e) => { if (e.target.files) processFiles(e.target.files); e.target.value = ''; }}
         />
         <div className="flex flex-col items-center gap-3">
-          <Upload size={28} className={dragging ? 'text-[#FF2D2D]' : 'text-white/10'} strokeWidth={1.5} />
+          <Upload size={28} className={dragging ? 'text-(--accent)' : 'text-foreground/10'} strokeWidth={1.5} />
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-widest text-white/30">DROP FILES HERE</p>
-            <p className="text-[9px] uppercase tracking-widest text-white/12 mt-1">MP3 / FLAC / WAV / OGG / M4A</p>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/30">DROP FILES HERE</p>
+            <p className="text-[9px] uppercase tracking-widest text-foreground/12 mt-1">MP3 / FLAC / WAV / OGG / M4A</p>
           </div>
           <button
             onClick={() => inputRef.current?.click()}
@@ -198,7 +198,7 @@ export default function UploadZone() {
               <p className="text-[10px] text-amber-300/60 uppercase tracking-wider font-bold flex-1">
                 {dupCount} DUPLICATE{dupCount !== 1 ? 'S' : ''} DETECTED & SKIPPED
               </p>
-              <button onClick={() => setResults(prev => prev.filter(r => r.status !== 'duplicate'))} className="text-white/20 hover:text-white/40">
+              <button onClick={() => setResults(prev => prev.filter(r => r.status !== 'duplicate'))} className="text-foreground/20 hover:text-foreground/40">
                 <X size={12} />
               </button>
             </div>
@@ -214,13 +214,13 @@ export default function UploadZone() {
             <div className="flex items-center justify-between px-1 mb-2">
               <div className="flex items-center gap-2">
                 <p className="brutal-label">UPLOAD LOG</p>
-                <span className="text-[9px] text-white/15 tabular-nums">{successCount} OK / {dupCount} DUP / {results.length} TOTAL</span>
+                <span className="text-[9px] text-foreground/15 tabular-nums">{successCount} OK / {dupCount} DUP / {results.length} TOTAL</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <button onClick={selectAll} className="text-[9px] text-white/25 hover:text-white/50 uppercase font-bold tracking-wider px-2 py-1" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+                <button onClick={selectAll} className="text-[9px] text-foreground/25 hover:text-foreground/50 uppercase font-bold tracking-wider px-2 py-1" style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.06)' }}>
                   SELECT ALL
                 </button>
-                <button onClick={deselectAll} className="text-[9px] text-white/25 hover:text-white/50 uppercase font-bold tracking-wider px-2 py-1" style={{ border: '1px solid rgba(255,255,255,0.06)' }}>
+                <button onClick={deselectAll} className="text-[9px] text-foreground/25 hover:text-foreground/50 uppercase font-bold tracking-wider px-2 py-1" style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.06)' }}>
                   CLEAR
                 </button>
               </div>
@@ -233,7 +233,7 @@ export default function UploadZone() {
                   key={i}
                   className={`flex items-center gap-2.5 px-2 py-1.5 rounded-sm transition-colors ${
                     r.status === 'duplicate' ? 'bg-amber-500/5' :
-                    r.selected && r.status === 'success' ? 'bg-white/5' : 'hover:bg-white/[0.02]'
+                    r.selected && r.status === 'success' ? 'bg-foreground/5' : 'hover:bg-foreground/[0.02]'
                   }`}
                 >
                   {/* Checkbox */}
@@ -241,30 +241,30 @@ export default function UploadZone() {
                     <button
                       onClick={() => toggleSelect(i)}
                       className="w-4 h-4 flex-shrink-0 flex items-center justify-center transition-all"
-                      style={{ border: r.selected ? '1.5px solid #FF2D2D' : '1.5px solid rgba(255,255,255,0.15)', background: r.selected ? 'rgba(255,45,45,0.2)' : 'transparent' }}
+                      style={{ border: r.selected ? '1.5px solid var(--accent)' : '1.5px solid rgb(var(--rgb-foreground) / 0.15)', background: r.selected ? 'rgb(var(--rgb-accent) / 0.2)' : 'transparent' }}
                     >
-                      {r.selected && <Check size={10} className="text-[#FF2D2D]" strokeWidth={3} />}
+                      {r.selected && <Check size={10} className="text-(--accent)" strokeWidth={3} />}
                     </button>
                   ) : (
                     <div className="w-4 h-4 flex-shrink-0" />
                   )}
 
                   {/* Status icon */}
-                  {r.status === 'uploading' && <div className="w-3 h-3 border-2 border-white/20 border-t-white/70 flex-shrink-0" style={{ animation: 'spin 1s linear infinite' }} />}
+                  {r.status === 'uploading' && <div className="w-3 h-3 border-2 border-foreground/20 border-t-white/70 flex-shrink-0" style={{ animation: 'spin 1s linear infinite' }} />}
                   {r.status === 'success' && <CheckCircle size={12} className="text-emerald-400 flex-shrink-0" />}
                   {r.status === 'duplicate' && <Copy size={12} className="text-amber-400/60 flex-shrink-0" />}
-                  {r.status === 'error' && <AlertCircle size={12} className="text-[#FF2D2D] flex-shrink-0" />}
+                  {r.status === 'error' && <AlertCircle size={12} className="text-(--accent) flex-shrink-0" />}
                   {/* File info */}
                   <div className="flex-1 min-w-0">
                     <p className={`text-[10px] font-bold uppercase tracking-wider truncate ${
                       r.status === 'duplicate' ? 'text-amber-400/40' :
-                      r.status === 'error' ? 'text-[#FF2D2D]/60' :
-                      r.selected ? 'text-white/50' : 'text-white/25'
+                      r.status === 'error' ? 'text-(--accent)/60' :
+                      r.selected ? 'text-foreground/50' : 'text-foreground/25'
                     }`}>
                       {r.song ? r.song.title : r.file}
                     </p>
                     {r.song && r.song.artist !== 'Unknown Artist' && (
-                      <p className={`text-[8px] uppercase tracking-wider truncate mt-0.5 ${r.status === 'duplicate' ? 'text-amber-400/20' : 'text-white/15'}`}>{r.song.artist}</p>
+                      <p className={`text-[8px] uppercase tracking-wider truncate mt-0.5 ${r.status === 'duplicate' ? 'text-amber-400/20' : 'text-foreground/15'}`}>{r.song.artist}</p>
                     )}
                   </div>
 
@@ -275,14 +275,14 @@ export default function UploadZone() {
 
                   {/* Duration */}
                   {r.song?.duration && r.status !== 'duplicate' ? (
-                    <span className="text-[9px] text-white/12 tabular-nums flex-shrink-0">
+                    <span className="text-[9px] text-foreground/12 tabular-nums flex-shrink-0">
                       {Math.floor(r.song.duration / 60)}:{String(Math.floor(r.song.duration % 60)).padStart(2, '0')}
                     </span>
                   ) : null}
 
                   {/* Progress */}
                   {r.status === 'uploading' && r.progress != null && (
-                    <span className="text-[9px] text-white/30 tabular-nums font-bold flex-shrink-0 w-9 text-right">{r.progress}%</span>
+                    <span className="text-[9px] text-foreground/30 tabular-nums font-bold flex-shrink-0 w-9 text-right">{r.progress}%</span>
                   )}
                 </div>
               ))}
@@ -301,8 +301,8 @@ export default function UploadZone() {
                 </button>
                 <button
                   onClick={() => setResults([])}
-                  className="text-white/15 hover:text-white/40 p-2.5 transition-colors"
-                  style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+                  className="text-foreground/15 hover:text-foreground/40 p-2.5 transition-colors"
+                  style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.06)' }}
                 >
                   <X size={14} />
                 </button>
@@ -323,10 +323,10 @@ export default function UploadZone() {
           >
             <div className="glass-panel p-4">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-[11px] font-extrabold uppercase tracking-widest text-white">
+                <p className="text-[11px] font-extrabold uppercase tracking-widest text-foreground">
                   ADD {selectedCount} TRACK{selectedCount !== 1 ? 'S' : ''} TO
                 </p>
-                <button onClick={() => { setShowPlaylistPanel(false); setNewPlaylistMode(false); setPlaylistName(''); }} className="text-white/30 hover:text-white">
+                <button onClick={() => { setShowPlaylistPanel(false); setNewPlaylistMode(false); setPlaylistName(''); }} className="text-foreground/30 hover:text-foreground">
                   <X size={14} />
                 </button>
               </div>
@@ -334,15 +334,15 @@ export default function UploadZone() {
               <div className="flex gap-2 mb-3">
                 <button
                   onClick={() => setNewPlaylistMode(false)}
-                  className={`flex-1 py-2 text-[10px] uppercase font-bold tracking-wider transition-all ${!newPlaylistMode ? 'text-white' : 'text-white/30 hover:text-white/50'}`}
-                  style={{ border: !newPlaylistMode ? '1px solid rgba(255,255,255,0.3)' : '1px solid rgba(255,255,255,0.08)', background: !newPlaylistMode ? 'rgba(255,255,255,0.08)' : 'transparent' }}
+                  className={`flex-1 py-2 text-[10px] uppercase font-bold tracking-wider transition-all ${!newPlaylistMode ? 'text-foreground' : 'text-foreground/30 hover:text-foreground/50'}`}
+                  style={{ border: !newPlaylistMode ? '1px solid rgb(var(--rgb-foreground) / 0.3)' : '1px solid rgb(var(--rgb-foreground) / 0.08)', background: !newPlaylistMode ? 'rgb(var(--rgb-foreground) / 0.08)' : 'transparent' }}
                 >
                   EXISTING PLAYLIST
                 </button>
                 <button
                   onClick={() => setNewPlaylistMode(true)}
-                  className={`flex-1 py-2 text-[10px] uppercase font-bold tracking-wider transition-all ${newPlaylistMode ? 'text-white' : 'text-white/30 hover:text-white/50'}`}
-                  style={{ border: newPlaylistMode ? '1px solid #FF2D2D' : '1px solid rgba(255,255,255,0.08)', background: newPlaylistMode ? 'rgba(255,45,45,0.12)' : 'transparent' }}
+                  className={`flex-1 py-2 text-[10px] uppercase font-bold tracking-wider transition-all ${newPlaylistMode ? 'text-foreground' : 'text-foreground/30 hover:text-foreground/50'}`}
+                  style={{ border: newPlaylistMode ? '1px solid var(--accent)' : '1px solid rgb(var(--rgb-foreground) / 0.08)', background: newPlaylistMode ? 'rgb(var(--rgb-accent) / 0.12)' : 'transparent' }}
                 >
                   <Plus size={10} className="mr-1 inline" />NEW PLAYLIST
                 </button>
@@ -354,8 +354,8 @@ export default function UploadZone() {
                     type="text" value={playlistName} onChange={(e) => setPlaylistName(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleAddToPlaylist()}
                     placeholder="Playlist name..." autoFocus
-                    className="w-full px-3 py-2.5 bg-white/5 text-white text-[11px] uppercase tracking-wide placeholder:text-white/15 outline-none"
-                    style={{ border: '1px solid rgba(255,255,255,0.1)' }}
+                    className="w-full px-3 py-2.5 bg-foreground/5 text-foreground text-[11px] uppercase tracking-wide placeholder:text-foreground/15 outline-none"
+                    style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.1)' }}
                   />
                   <button
                     onClick={handleAddToPlaylist} disabled={!playlistName.trim() || addingToPlaylist}
@@ -369,8 +369,8 @@ export default function UploadZone() {
                 <div className="space-y-1.5 max-h-48 overflow-y-auto custom-scroll">
                   {playlists.length === 0 ? (
                     <div className="py-6 text-center">
-                      <p className="text-[10px] text-white/15 uppercase tracking-widest">NO PLAYLISTS YET</p>
-                      <button onClick={() => setNewPlaylistMode(true)} className="text-[10px] text-[#FF2D2D]/70 uppercase font-bold mt-1 hover:text-[#FF2D2D]">
+                      <p className="text-[10px] text-foreground/15 uppercase tracking-widest">NO PLAYLISTS YET</p>
+                      <button onClick={() => setNewPlaylistMode(true)} className="text-[10px] text-(--accent)/70 uppercase font-bold mt-1 hover:text-(--accent)">
                         CREATE ONE INSTEAD
                       </button>
                     </div>
@@ -379,16 +379,16 @@ export default function UploadZone() {
                       {playlists.map(pl => (
                         <button
                           key={pl.id} onClick={() => setSelectedPlaylistId(pl.id)}
-                          className={`w-full flex items-center gap-3 px-3 py-2.5 transition-all ${selectedPlaylistId === pl.id ? 'bg-white/8 border-l-2 border-[#FF2D2D]' : 'hover:bg-white/[0.03] border-l-2 border-transparent'}`}
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 transition-all ${selectedPlaylistId === pl.id ? 'bg-foreground/8 border-l-2 border-(--accent)' : 'hover:bg-foreground/[0.03] border-l-2 border-transparent'}`}
                         >
                           <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center"
-                            style={{ border: selectedPlaylistId === pl.id ? '1.5px solid #FF2D2D' : '1.5px solid rgba(255,255,255,0.15)', background: selectedPlaylistId === pl.id ? 'rgba(255,45,45,0.2)' : 'transparent' }}
+                            style={{ border: selectedPlaylistId === pl.id ? '1.5px solid var(--accent)' : '1.5px solid rgb(var(--rgb-foreground) / 0.15)', background: selectedPlaylistId === pl.id ? 'rgb(var(--rgb-accent) / 0.2)' : 'transparent' }}
                           >
-                            {selectedPlaylistId === pl.id && <Check size={10} className="text-[#FF2D2D]" strokeWidth={3} />}
+                            {selectedPlaylistId === pl.id && <Check size={10} className="text-(--accent)" strokeWidth={3} />}
                           </div>
                           <div className="flex-1 text-left min-w-0">
-                            <p className="text-[11px] font-bold text-white/60 truncate uppercase tracking-wide">{pl.name}</p>
-                            <p className="text-[9px] text-white/20 uppercase">{pl.song_count} {pl.song_count === 1 ? 'TRACK' : 'TRACKS'}</p>
+                            <p className="text-[11px] font-bold text-foreground/60 truncate uppercase tracking-wide">{pl.name}</p>
+                            <p className="text-[9px] text-foreground/20 uppercase">{pl.song_count} {pl.song_count === 1 ? 'TRACK' : 'TRACKS'}</p>
                           </div>
                         </button>
                       ))}

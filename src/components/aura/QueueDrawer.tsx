@@ -17,40 +17,40 @@ function QueueItem({ song, index, isCurrent, onClick, onMoveUp, onMoveDown, canR
     <div
       className={`flex items-center gap-2 px-3 py-2 cursor-pointer transition-all group ${
         isCurrent
-          ? 'bg-white/8 border-l-2 border-[#FF2D2D]'
-          : 'border-l-2 border-transparent hover:bg-white/[0.03]'
+          ? 'bg-foreground/8 border-l-2 border-(--accent)'
+          : 'border-l-2 border-transparent hover:bg-foreground/[0.03]'
       }`}
       onClick={onClick}
     >
       {/* Artwork */}
-      <div className="w-9 h-9 overflow-hidden flex-shrink-0" style={{ border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.3)' }}>
+      <div className="w-9 h-9 overflow-hidden flex-shrink-0" style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.08)', background: 'var(--art-bg)' }}>
         {song.artwork_url || song.artwork_path ? (
           <img src={getArtworkUrl(song.id, song.artwork_path)} alt={song.title} className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-white/8"><Music2 size={10} strokeWidth={1.5} /></div>
+          <div className="w-full h-full flex items-center justify-center text-foreground/8"><Music2 size={10} strokeWidth={1.5} /></div>
         )}
       </div>
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <p className={`text-[11px] font-bold truncate uppercase tracking-wide ${isCurrent ? 'text-white' : 'text-white/50'}`}>{song.title}</p>
-        <p className="text-[9px] text-white/20 truncate uppercase tracking-wider mt-0.5">{song.artist}</p>
+        <p className={`text-[11px] font-bold truncate uppercase tracking-wide ${isCurrent ? 'text-foreground' : 'text-foreground/50'}`}>{song.title}</p>
+        <p className="text-[9px] text-foreground/20 truncate uppercase tracking-wider mt-0.5">{song.artist}</p>
       </div>
 
       {/* Duration */}
-      <span className="text-[9px] text-white/15 tabular-nums font-bold uppercase flex-shrink-0 mr-1">{formatDuration(song.duration)}</span>
+      <span className="text-[9px] text-foreground/15 tabular-nums font-bold uppercase flex-shrink-0 mr-1">{formatDuration(song.duration)}</span>
 
       {/* Reorder buttons */}
       {canReorder && (
         <div className="flex flex-col items-center gap-0 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
           <button
-            className="h-4 w-6 flex items-center justify-center text-white/20 hover:text-white/60"
+            className="h-4 w-6 flex items-center justify-center text-foreground/20 hover:text-foreground/60"
             onClick={(e) => { e.stopPropagation(); onMoveUp(); }}
           >
             <ChevronUp size={10} strokeWidth={2} />
           </button>
           <button
-            className="h-4 w-6 flex items-center justify-center text-white/20 hover:text-white/60"
+            className="h-4 w-6 flex items-center justify-center text-foreground/20 hover:text-foreground/60"
             onClick={(e) => { e.stopPropagation(); onMoveDown(); }}
           >
             <ChevronDown size={10} strokeWidth={2} />
@@ -87,7 +87,7 @@ export default function QueueDrawer() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0"
-            style={{ zIndex: 89, background: 'rgba(0,0,0,0.3)' }}
+            style={{ zIndex: 89, background: 'var(--art-bg)' }}
             onClick={() => setShowQueue(false)}
           />
           {/* Panel */}
@@ -102,18 +102,18 @@ export default function QueueDrawer() {
               background: 'rgba(14, 14, 20, 0.85)',
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
-              borderLeft: '1px solid rgba(255,255,255,0.1)',
+              borderLeft: '1px solid rgb(var(--rgb-foreground) / 0.1)',
             }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 flex-shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="flex items-center justify-between px-4 py-3 flex-shrink-0" style={{ borderBottom: '1px solid rgb(var(--rgb-foreground) / 0.06)' }}>
               <div>
-                <h2 className="text-[11px] font-extrabold uppercase tracking-widest text-white">QUEUE</h2>
+                <h2 className="text-[11px] font-extrabold uppercase tracking-widest text-foreground">QUEUE</h2>
                 <p className="brutal-label mt-0.5">{queue.length} TRACKS</p>
               </div>
               <button
-                className="h-8 w-8 flex items-center justify-center text-white/40 hover:text-white transition-colors"
-                style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)' }}
+                className="h-8 w-8 flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors"
+                style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.1)', background: 'rgb(var(--rgb-foreground) / 0.04)' }}
                 onClick={() => setShowQueue(false)}
               >
                 <X size={14} strokeWidth={2} />
@@ -124,9 +124,9 @@ export default function QueueDrawer() {
             <div className="flex-1 overflow-hidden">
               {queue.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full gap-3">
-                  <Music2 size={24} className="text-white/8" strokeWidth={1} />
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/15">QUEUE EMPTY</p>
-                  <p className="text-[8px] text-white/8 uppercase tracking-widest">PLAY A TRACK TO START</p>
+                  <Music2 size={24} className="text-foreground/8" strokeWidth={1} />
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-foreground/15">QUEUE EMPTY</p>
+                  <p className="text-[8px] text-foreground/8 uppercase tracking-widest">PLAY A TRACK TO START</p>
                 </div>
               ) : (
                 <div className="h-full overflow-y-auto custom-scroll">
@@ -134,7 +134,7 @@ export default function QueueDrawer() {
                   {nowPlaying && (
                     <div className="px-3 pt-3 pb-1">
                       <p className="brutal-label mb-1.5">NOW PLAYING</p>
-                      <div className="bg-white/5 border-l-2 border-[#FF2D2D]">
+                      <div className="bg-foreground/5 border-l-2 border-(--accent)">
                         <QueueItem
                           song={nowPlaying}
                           index={queueIndex}

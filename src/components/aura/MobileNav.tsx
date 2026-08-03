@@ -24,8 +24,8 @@ export default function MobileNav() {
     >
       <div className="flex items-center justify-around px-2 py-2.5">
         <div className="flex items-center gap-1 absolute left-3">
-          <Disc3 size={12} className="text-white/50" strokeWidth={2} />
-          <span className="text-[8px] font-extrabold uppercase tracking-widest text-white/35">WAVE</span>
+          <Disc3 size={12} className="text-foreground/50" strokeWidth={2} />
+          <span className="text-[8px] font-extrabold uppercase tracking-widest text-foreground/35">WAVE</span>
         </div>
         {tabs.map(tab => {
           const active = currentTab === tab.id;
@@ -34,13 +34,13 @@ export default function MobileNav() {
               key={tab.id}
               onClick={() => { setCurrentTab(tab.id); if (tab.id === 'playlists') setActivePlaylistId(null); }}
               className={`flex flex-col items-center gap-0.5 px-5 py-1.5 min-h-[44px] justify-center transition-all ${
-                active ? 'text-white' : 'text-white/20 active:text-white/40'
+                active ? 'text-foreground' : 'text-foreground/20 active:text-foreground/40'
               }`}
             >
               <tab.icon size={17} strokeWidth={active ? 2.5 : 1.5} />
-              <span className={`text-[8px] font-bold uppercase tracking-widest ${active ? 'text-white' : ''}`}>{tab.label}</span>
+              <span className={`text-[8px] font-bold uppercase tracking-widest ${active ? 'text-foreground' : ''}`}>{tab.label}</span>
               {tab.id === 'playlists' && playlists.length > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 flex items-center justify-center rounded-full text-[7px] font-bold bg-[#FF2D2D] text-white">{playlists.length}</span>
+                <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 flex items-center justify-center rounded-full text-[7px] font-bold bg-(--accent) text-foreground">{playlists.length}</span>
               )}
             </button>
           );

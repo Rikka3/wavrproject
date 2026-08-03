@@ -100,6 +100,8 @@ try { db.exec(`ALTER TABLE songs ADD COLUMN lyrics TEXT DEFAULT ''`); } catch {}
 try { db.exec(`ALTER TABLE songs ADD COLUMN is_favorite INTEGER DEFAULT 0`); } catch {}
 try { db.exec(`ALTER TABLE songs ADD COLUMN user_id TEXT DEFAULT ''`); } catch {}
 try { db.exec(`ALTER TABLE playlists ADD COLUMN user_id TEXT DEFAULT ''`); } catch {}
+try { db.exec(`ALTER TABLE playlists ADD COLUMN is_public INTEGER DEFAULT 0`); } catch {}
+try { db.exec(`ALTER TABLE playlists ADD COLUMN owner_name TEXT DEFAULT ''`); } catch {}
 
 console.log(`[db] Schema ready, auth=${authEnabled}, admin=${ADMIN_CODE ? 'enabled' : 'disabled'}`);
 
@@ -144,11 +146,11 @@ const stmtCheckDup = db.prepare(`SELECT id, title, artist FROM songs WHERE user_
 const stmtFindByPath = db.prepare(`SELECT id FROM songs WHERE file_path = ?`);
 
 // Playlist statements (with user_id filtering)
-const stmtPlaylistGetAll = db.prepare(`SELECT p.*, COUNT(ps.song_id) as song_count FROM playlists p LEFT JOIN playlist_songs ps ON p.id = ps.playlist_id WHERE (p.user_id = ? OR p.user_id = '') GROUP BY p.id ORDER BY p.updated_at DESC`);
-const stmtPlaylistGetAllNoUser = db.prepare(`SELECT p.*, COUNT(ps.song_id) as song_count FROM playlists p LEFT JOIN playlist_songs ps ON p.id = ps.playlist_id GROUP BY p.id ORDER BY p.updated_at DESC`);
+const stmtPlaylistGetAll = db.prepare(`SELECT p.*, COUNT(ps.song_id) as song_count FROM playlists p LEFT JOIN playlist_songs ps ON p.id = ps.playlist_id WHERE (p.user_id = ? OR p.user_id = '' OR p.is_public = 1) GROUP BY p.id ORDER BY p.updated_at DESC`);
+const stmtPlaylistGetAllNoUser = db.prepare(`SELECT p.*, COUNT(ps.song_id) as song_count FROM playlists p LEFT JOIN playlist_songs ps ON p.id = ps.playlist_id WHERE (p.user_id = '' OR p.is_public = 1) GROUP BY p.id ORDER BY p.updated_at DESC`);
 const stmtPlaylistGetById = db.prepare(`SELECT * FROM playlists WHERE id = ?`);
-const stmtPlaylistCreate = db.prepare(`INSERT INTO playlists (id, name, description, user_id) VALUES (?, ?, ?, ?)`);
-const stmtPlaylistUpdate = db.prepare(`UPDATE playlists SET name = ?, description = ?, updated_at = datetime('now') WHERE id = ?`);
+const stmtPlaylistCreate = db.prepare(`INSERT INTO playlists (id, name, description, user_id, is_public, owner_name) VALUES (?, ?, ?, ?, ?, ?)`);
+const stmtPlaylistUpdate = db.prepare(`UPDATE playlists SET name = ?, description = ?, is_public = ?, updated_at = datetime('now') WHERE id = ?`);
 const stmtPlaylistDelete = db.prepare(`DELETE FROM playlists WHERE id = ?`);
 const stmtPlaylistDeleteSongs = db.prepare(`DELETE FROM playlist_songs WHERE playlist_id = ?`);
 const stmtPlaylistAddSong = db.prepare(`INSERT OR IGNORE INTO playlist_songs (playlist_id, song_id, position, added_at) VALUES (?, ?, ?, datetime('now'))`);
@@ -329,17 +331,17 @@ async function downloadArtwork(url: string, id: string): Promise<string> {
 }
 
 // ===== Auth Middleware =====
-async function getUser(req: Request): Promise<{ uid: string; authenticated: boolean }> {
-  if (!authEnabled) return { uid: '', authenticated: false };
+async function getUser(req: Request): Promise<{ uid: string; authenticated: boolean; profile: { name?: string; email?: string } | null }> {
+  if (!authEnabled) return { uid: '', authenticated: false, profile: null };
   const authHeader = req.headers.get('authorization');
-  if (!authHeader || !authHeader.startsWith('Bearer ')) return { uid: '', authenticated: false };
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return { uid: '', authenticated: false, profile: null };
   try {
     const token = authHeader.slice(7);
     const decoded = await verifyIdToken!(token);
-    return { uid: decoded.uid, authenticated: true };
+    return { uid: decoded.uid, authenticated: true, profile: { name: decoded.name, email: decoded.email } };
   } catch (e) {
     console.error('[auth] Token verification failed:', e);
-    return { uid: '', authenticated: false };
+    return { uid: '', authenticated: false, profile: null };
   }
 }
 
@@ -605,31 +607,36 @@ function handleListPlaylists(userId: string): Response {
   return Response.json({ playlists });
 }
 
-function handleGetPlaylist(id: string): Response {
+function handleGetPlaylist(id: string, userId: string, req: Request): Response {
   const playlist = stmtPlaylistGetById.get(id) as any;
   if (!playlist) return Response.json({ error: 'Playlist not found' }, { status: 404 });
+  if (authEnabled && !playlist.is_public && playlist.user_id !== '' && playlist.user_id !== userId && !checkAdminCode(req)) {
+    return Response.json({ error: 'You can only view your own playlists' }, { status: 403 });
+  }
   const songs = stmtPlaylistGetSongs.all(id) as any[];
   return Response.json({ ...playlist, songs });
 }
 
-async function handleCreatePlaylist(req: Request, userId: string): Promise<Response> {
+async function handleCreatePlaylist(req: Request, userId: string, profile: { name?: string; email?: string } | null): Promise<Response> {
   if (authEnabled && !userId) return Response.json({ error: 'Sign in required' }, { status: 401 });
   try {
     const body = await req.json() as any;
     const name = body.name?.trim() || 'Untitled Playlist';
     const description = body.description || '';
     const songIds: string[] = body.song_ids || [];
+    const is_public = body.is_public ? 1 : 0;
+    const owner_name = profile?.name || profile?.email || '';
     const id = randomUUID();
-    stmtPlaylistCreate.run(id, name, description, userId);
+    stmtPlaylistCreate.run(id, name, description, userId, is_public, owner_name);
 
     if (songIds.length > 0) {
       for (let i = 0; i < songIds.length; i++) {
         const song = stmtGetById.get(songIds[i]) as any;
         if (song) stmtPlaylistAddSong.run(id, songIds[i], i);
       }
-      stmtPlaylistUpdate.run(name, description, id);
+      stmtPlaylistUpdate.run(name, description, is_public, id);
     }
-    return Response.json({ id, name, description, song_count: songIds.length }, { status: 201 });
+    return Response.json({ id, name, description, song_count: songIds.length, is_public }, { status: 201 });
   } catch (e: any) { return Response.json({ error: e.message }, { status: 400 }); }
 }
 
@@ -646,8 +653,9 @@ async function handleUpdatePlaylist(id: string, req: Request, userId: string): P
     const body = await req.json() as any;
     const name = body.name?.trim() || existing.name;
     const description = body.description !== undefined ? body.description : existing.description;
-    stmtPlaylistUpdate.run(name, description, id);
-    return Response.json({ id, name, description });
+    const is_public = body.is_public !== undefined ? (body.is_public ? 1 : 0) : existing.is_public;
+    stmtPlaylistUpdate.run(name, description, is_public, id);
+    return Response.json({ id, name, description, is_public });
   } catch (e: any) { return Response.json({ error: e.message }, { status: 400 }); }
 }
 
@@ -683,7 +691,7 @@ async function handleAddSongToPlaylist(playlistId: string, req: Request, userId:
     const maxPos = stmtPlaylistGetMaxPos.get(playlistId) as any;
     const position = (maxPos?.max_pos ?? -1) + 1;
     stmtPlaylistAddSong.run(playlistId, songId, position);
-    stmtPlaylistUpdate.run(playlist.name, playlist.description, playlistId);
+    stmtPlaylistUpdate.run(playlist.name, playlist.description, playlist.is_public ?? 0, playlistId);
     return Response.json({ success: true, position });
   } catch (e: any) { return Response.json({ error: e.message }, { status: 400 }); }
 }
@@ -708,7 +716,7 @@ async function handleBatchAddSongsToPlaylist(playlistId: string, req: Request, u
       const song = stmtGetById.get(songId) as any;
       if (song) { try { stmtPlaylistAddSong.run(playlistId, songId, position++); added++; } catch {} }
     }
-    stmtPlaylistUpdate.run(playlist.name, playlist.description, playlistId);
+    stmtPlaylistUpdate.run(playlist.name, playlist.description, playlist.is_public ?? 0, playlistId);
     return Response.json({ success: true, added });
   } catch (e: any) { return Response.json({ error: e.message }, { status: 400 }); }
 }
@@ -723,7 +731,7 @@ function handleRemoveSongFromPlaylist(playlistId: string, songId: string, userId
     return Response.json({ error: 'You can only modify your own playlists' }, { status: 403 });
   }
   stmtPlaylistRemoveSong.run(playlistId, songId);
-  stmtPlaylistUpdate.run(playlist.name, playlist.description, playlistId);
+  stmtPlaylistUpdate.run(playlist.name, playlist.description, playlist.is_public ?? 0, playlistId);
   return Response.json({ success: true });
 }
 
@@ -778,7 +786,7 @@ const server = Bun.serve({
       }
 
       // Get auth user
-      const { uid: userId } = await getUser(req);
+      const { uid: userId, profile } = await getUser(req);
 
       // ===== PUBLIC ROUTES (no auth required) =====
 
@@ -989,11 +997,11 @@ const server = Bun.serve({
       }
 
       if (path === '/playlists' && method === 'POST') {
-        return cors(await handleCreatePlaylist(req, userId));
+        return cors(await handleCreatePlaylist(req, userId, profile));
       }
 
       const playlistMatch = path.match(/^\/playlists\/([a-f0-9-]+)$/);
-      if (playlistMatch && method === 'GET') return cors(handleGetPlaylist(playlistMatch[1]));
+      if (playlistMatch && method === 'GET') return cors(handleGetPlaylist(playlistMatch[1], userId, req));
       if (playlistMatch && method === 'PUT') return cors(await handleUpdatePlaylist(playlistMatch[1], req, userId));
       if (playlistMatch && method === 'DELETE') return cors(handleDeletePlaylist(playlistMatch[1], userId, req));
 

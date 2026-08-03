@@ -19,6 +19,8 @@ export interface Playlist {
   id: string; name: string; description: string;
   created_at: string; updated_at: string; song_count: number;
   user_id?: string;
+  is_public?: number;
+  owner_name?: string;
   songs?: Song[];
 }
 
@@ -159,19 +161,19 @@ export async function fetchPlaylist(id: string): Promise<Playlist> {
   return apiFetch<Playlist>(`/playlists/${id}`);
 }
 
-export async function createPlaylist(name: string, description?: string, songIds?: string[]): Promise<Playlist> {
+export async function createPlaylist(name: string, description?: string, songIds?: string[], isPublic = false): Promise<Playlist> {
   return apiFetch<Playlist>('/playlists', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, description: description || '', song_ids: songIds || [] }),
+    body: JSON.stringify({ name, description: description || '', song_ids: songIds || [], is_public: isPublic ? 1 : 0 }),
   });
 }
 
-export async function updatePlaylist(id: string, name: string, description?: string, adminCode?: string): Promise<Playlist> {
+export async function updatePlaylist(id: string, updates: { name?: string; description?: string; is_public?: number }, adminCode?: string): Promise<Playlist> {
   return apiFetch<Playlist>(`/playlists/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, description: description || '' }),
+    body: JSON.stringify(updates),
   }, undefined, adminCode);
 }
 

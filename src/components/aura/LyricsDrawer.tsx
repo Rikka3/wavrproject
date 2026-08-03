@@ -150,20 +150,20 @@ export default function LyricsDrawer() {
             background: 'rgba(8, 6, 16, 0.95)',
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
-            borderTop: '1px solid rgba(255,255,255,0.08)',
+            borderTop: '1px solid rgb(var(--rgb-foreground) / 0.08)',
           }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 flex-shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="flex items-center justify-between px-4 py-3 flex-shrink-0" style={{ borderBottom: '1px solid rgb(var(--rgb-foreground) / 0.06)' }}>
             <div className="min-w-0 flex-1 mr-3">
-              <h2 className="text-[11px] font-extrabold text-white truncate uppercase tracking-widest">
+              <h2 className="text-[11px] font-extrabold text-foreground truncate uppercase tracking-widest">
                 {currentSong.title} {'//'} {currentSong.artist}
               </h2>
               <p className="brutal-label mt-0.5">LYRICS</p>
             </div>
             <button
-              className="h-9 w-9 flex items-center justify-center text-white/40 hover:text-white transition-colors flex-shrink-0"
-              style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.04)' }}
+              className="h-9 w-9 flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors flex-shrink-0"
+              style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.1)', background: 'rgb(var(--rgb-foreground) / 0.04)' }}
               onClick={() => setShowLyrics(false)}
             >
               <X size={16} strokeWidth={2} />
@@ -174,8 +174,8 @@ export default function LyricsDrawer() {
           <div className="flex-1 overflow-hidden">
             {lyricsLoading ? (
               <div className="flex flex-col items-center justify-center h-full gap-3">
-                <Loader2 size={24} className="text-white/20 animate-spin" />
-                <p className="text-[10px] uppercase tracking-widest text-white/20 font-bold">LOADING LYRICS</p>
+                <Loader2 size={24} className="text-foreground/20 animate-spin" />
+                <p className="text-[10px] uppercase tracking-widest text-foreground/20 font-bold">LOADING LYRICS</p>
               </div>
             ) : parsed.length > 0 ? (
               <div ref={containerRef} className="h-full overflow-y-auto custom-scroll" onScroll={handleUserScroll}>
@@ -188,16 +188,16 @@ export default function LyricsDrawer() {
                       ref={i === activeIndex ? activeRef : undefined}
                       className={`py-2.5 px-3 transition-all duration-500 ease-out cursor-pointer ${
                         i === activeIndex
-                          ? 'text-white font-extrabold text-[15px] scale-[1.03]'
+                          ? 'text-foreground font-extrabold text-[15px] scale-[1.03]'
                           : i === nextIndex
-                            ? 'text-white/35 text-[13px] font-semibold'
-                            : 'text-white/15 text-[13px] font-medium'
+                            ? 'text-foreground/35 text-[13px] font-semibold'
+                            : 'text-foreground/15 text-[13px] font-medium'
                       }`}
                       style={
                         i === activeIndex
-                          ? { textShadow: '0 0 30px rgba(255,255,255,0.12)' }
+                          ? { textShadow: '0 0 30px rgb(var(--rgb-foreground) / 0.12)' }
                           : i === nextIndex
-                            ? { textShadow: '0 0 15px rgba(255,255,255,0.05)' }
+                            ? { textShadow: '0 0 15px rgb(var(--rgb-foreground) / 0.05)' }
                             : undefined
                       }
                       onClick={() => {
@@ -215,15 +215,15 @@ export default function LyricsDrawer() {
               <div className="h-full overflow-y-auto custom-scroll px-4 py-6">
                 <div className="max-w-lg mx-auto">
                   {lyricsPlain.split('\n').map((line, i) => (
-                    <p key={i} className="text-[13px] text-white/30 py-1.5 px-3 leading-relaxed">{line}</p>
+                    <p key={i} className="text-[13px] text-foreground/30 py-1.5 px-3 leading-relaxed">{line}</p>
                   ))}
                 </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-full gap-3">
-                <Music2 size={28} className="text-white/8" strokeWidth={1} />
-                <p className="text-[11px] font-bold uppercase tracking-widest text-white/15">NO LYRICS AVAILABLE</p>
-                <p className="text-[9px] text-white/8 uppercase tracking-widest">TRY ANOTHER TRACK</p>
+                <Music2 size={28} className="text-foreground/8" strokeWidth={1} />
+                <p className="text-[11px] font-bold uppercase tracking-widest text-foreground/15">NO LYRICS AVAILABLE</p>
+                <p className="text-[9px] text-foreground/8 uppercase tracking-widest">TRY ANOTHER TRACK</p>
               </div>
             )}
           </div>

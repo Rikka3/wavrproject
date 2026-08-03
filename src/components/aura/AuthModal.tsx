@@ -98,8 +98,8 @@ export default function AuthModal({ compact = false }: { compact?: boolean }) {
   if (!isFirebaseConfigured) {
     return (
       <div className="w-full flex items-center gap-2 px-2">
-        <Disc3 size={14} className="text-white/20" strokeWidth={1.5} />
-        <span className="text-[8px] text-white/15 uppercase tracking-widest">LOCAL MODE</span>
+        <Disc3 size={14} className="text-foreground/20" strokeWidth={1.5} />
+        <span className="text-[8px] text-foreground/15 uppercase tracking-widest">LOCAL MODE</span>
       </div>
     );
   }
@@ -114,8 +114,8 @@ export default function AuthModal({ compact = false }: { compact?: boolean }) {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className={`flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] uppercase font-bold tracking-wider text-white/40 hover:text-white hover:bg-white/5 transition-all ${compact ? 'justify-center h-8 w-8 !p-0 gap-0' : 'w-full justify-center'}`}
-        style={{ border: '1px solid rgba(255,255,255,0.08)' }}
+        className={`flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] uppercase font-bold tracking-wider text-foreground/40 hover:text-foreground hover:bg-foreground/5 transition-all ${compact ? 'justify-center h-8 w-8 !p-0 gap-0' : 'w-full justify-center'}`}
+        style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.08)' }}
       >
         {loading ? <Loader2 size={12} className="animate-spin" /> : <LogIn size={12} />}
         {!compact && 'SIGN IN'}
@@ -133,21 +133,21 @@ export default function AuthModal({ compact = false }: { compact?: boolean }) {
               initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               className="w-full max-w-sm mx-4"
-              style={{ background: 'rgba(18,18,28,0.95)', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 0 60px rgba(0,0,0,0.5)' }}
+              style={{ background: 'var(--dialog-bg)', border: '1px solid rgb(var(--rgb-foreground) / 0.1)', boxShadow: 'var(--dialog-shadow)' }}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
               <div className="flex items-center justify-between px-5 pt-5 pb-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <Disc3 size={16} className="text-white" strokeWidth={2} />
-                    <h2 className="text-[13px] font-extrabold uppercase tracking-widest text-white">WAVR</h2>
+                    <Disc3 size={16} className="text-foreground" strokeWidth={2} />
+                    <h2 className="text-[13px] font-extrabold uppercase tracking-widest text-foreground">WAVR</h2>
                   </div>
-                  <p className="text-[9px] text-white/20 uppercase tracking-widest mt-0.5">
+                  <p className="text-[9px] text-foreground/20 uppercase tracking-widest mt-0.5">
                     {view === 'login' ? 'SIGN IN TO YOUR ACCOUNT' : 'CREATE A NEW ACCOUNT'}
                   </p>
                 </div>
-                <button className="text-white/30 hover:text-white p-1" onClick={() => setIsOpen(false)}>
+                <button className="text-foreground/30 hover:text-foreground p-1" onClick={() => setIsOpen(false)}>
                   <X size={18} />
                 </button>
               </div>
@@ -156,62 +156,62 @@ export default function AuthModal({ compact = false }: { compact?: boolean }) {
               <form onSubmit={handleSubmit} className="px-5 pb-5 space-y-3">
                 {view === 'signup' && (
                   <div className="relative">
-                    <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/15" strokeWidth={1.5} />
+                    <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/15" strokeWidth={1.5} />
                     <input
                       type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)}
                       placeholder="Display name"
-                      className="w-full pl-9 pr-3 py-2.5 bg-white/5 text-white text-[11px] uppercase tracking-wide placeholder:text-white/15 outline-none"
-                      style={{ border: '1px solid rgba(255,255,255,0.1)' }}
+                      className="w-full pl-9 pr-3 py-2.5 bg-foreground/5 text-foreground text-[11px] uppercase tracking-wide placeholder:text-foreground/15 outline-none"
+                      style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.1)' }}
                     />
                   </div>
                 )}
                 <div className="relative">
-                  <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/15" strokeWidth={1.5} />
+                  <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/15" strokeWidth={1.5} />
                   <input
                     type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                     placeholder="Email address" required
-                    className="w-full pl-9 pr-3 py-2.5 bg-white/5 text-white text-[11px] uppercase tracking-wide placeholder:text-white/15 outline-none"
-                    style={{ border: '1px solid rgba(255,255,255,0.1)' }}
+                    className="w-full pl-9 pr-3 py-2.5 bg-foreground/5 text-foreground text-[11px] uppercase tracking-wide placeholder:text-foreground/15 outline-none"
+                    style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.1)' }}
                   />
                 </div>
                 <div className="relative">
-                  <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/15" strokeWidth={1.5} />
+                  <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/15" strokeWidth={1.5} />
                   <input
                     type="password" value={password} onChange={(e) => setPassword(e.target.value)}
                     placeholder="Password" required minLength={6}
-                    className="w-full pl-9 pr-3 py-2.5 bg-white/5 text-white text-[11px] uppercase tracking-wide placeholder:text-white/15 outline-none"
-                    style={{ border: '1px solid rgba(255,255,255,0.1)' }}
+                    className="w-full pl-9 pr-3 py-2.5 bg-foreground/5 text-foreground text-[11px] uppercase tracking-wide placeholder:text-foreground/15 outline-none"
+                    style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.1)' }}
                   />
                 </div>
 
                 <button
                   type="submit" disabled={submitting}
-                  className="w-full py-2.5 text-[11px] uppercase font-bold tracking-wider text-white transition-all disabled:opacity-40 min-h-[44px]"
-                  style={{ border: '1px solid #FF2D2D', background: 'rgba(255,45,45,0.15)' }}
+                  className="w-full py-2.5 text-[11px] uppercase font-bold tracking-wider text-foreground transition-all disabled:opacity-40 min-h-[44px]"
+                  style={{ border: '1px solid var(--accent)', background: 'rgb(var(--rgb-accent) / 0.15)' }}
                 >
                   {submitting ? <Loader2 size={14} className="mx-auto animate-spin" /> : (view === 'login' ? 'SIGN IN' : 'CREATE ACCOUNT')}
                 </button>
 
                 {/* Divider */}
                 <div className="flex items-center gap-3 py-1">
-                  <div className="flex-1 h-px bg-white/8" />
-                  <span className="text-[9px] text-white/15 uppercase tracking-widest">OR</span>
-                  <div className="flex-1 h-px bg-white/8" />
+                  <div className="flex-1 h-px bg-foreground/8" />
+                  <span className="text-[9px] text-foreground/15 uppercase tracking-widest">OR</span>
+                  <div className="flex-1 h-px bg-foreground/8" />
                 </div>
 
                 {/* Google button */}
                 <button
                   type="button" onClick={handleGoogle} disabled={submitting}
-                  className="w-full py-2.5 text-[11px] uppercase font-bold tracking-wider text-white/60 hover:text-white transition-all disabled:opacity-40 flex items-center justify-center gap-2 min-h-[44px]"
-                  style={{ border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.03)' }}
+                  className="w-full py-2.5 text-[11px] uppercase font-bold tracking-wider text-foreground/60 hover:text-foreground transition-all disabled:opacity-40 flex items-center justify-center gap-2 min-h-[44px]"
+                  style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.15)', background: 'rgb(var(--rgb-foreground) / 0.03)' }}
                 >
                   <Chrome size={14} />CONTINUE WITH GOOGLE
                 </button>
 
                 {/* Toggle login/signup */}
-                <p className="text-center text-[10px] text-white/25 uppercase tracking-wider">
+                <p className="text-center text-[10px] text-foreground/25 uppercase tracking-wider">
                   {view === 'login' ? 'NO ACCOUNT?' : 'ALREADY HAVE AN ACCOUNT?'}
-                  <button type="button" onClick={() => setView(view === 'login' ? 'signup' : 'login')} className="ml-1.5 text-white/50 hover:text-white font-bold">
+                  <button type="button" onClick={() => setView(view === 'login' ? 'signup' : 'login')} className="ml-1.5 text-foreground/50 hover:text-foreground font-bold">
                     {view === 'login' ? 'SIGN UP' : 'SIGN IN'}
                   </button>
                 </p>
@@ -235,14 +235,14 @@ function UserProfileMenu({ compact = false }: { compact?: boolean }) {
     <div className="relative">
       <button
         onClick={() => setShowMenu(!showMenu)}
-        className={`flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 transition-all max-w-full min-w-0 ${compact ? 'w-auto p-1' : 'w-full'}`}
-        style={{ border: '1px solid rgba(255,255,255,0.08)' }}
+        className={`flex items-center gap-2 px-2 py-1.5 hover:bg-foreground/5 transition-all max-w-full min-w-0 ${compact ? 'w-auto p-1' : 'w-full'}`}
+        style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.08)' }}
       >
-        <div className="w-6 h-6 flex items-center justify-center text-[10px] font-bold uppercase text-white/70 flex-shrink-0" style={{ border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.06)' }}>
+        <div className="w-6 h-6 flex items-center justify-center text-[10px] font-bold uppercase text-foreground/70 flex-shrink-0" style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.15)', background: 'rgb(var(--rgb-foreground) / 0.06)' }}>
           {user.photoURL ? <img src={user.photoURL} className="w-full h-full object-cover" alt="" /> : initials}
         </div>
         {!compact && (
-          <span className="text-[10px] text-white/40 uppercase tracking-wider font-bold hidden lg:inline flex-1 min-w-0 truncate text-left">
+          <span className="text-[10px] text-foreground/40 uppercase tracking-wider font-bold hidden lg:inline flex-1 min-w-0 truncate text-left">
             {user.displayName || user.email?.split('@')[0]}
           </span>
         )}
@@ -255,15 +255,15 @@ function UserProfileMenu({ compact = false }: { compact?: boolean }) {
             <motion.div
               initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
               className="absolute top-full right-0 mt-1 w-52 py-1.5"
-              style={{ zIndex: 200, background: 'rgba(18,18,28,0.95)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)' }}
+              style={{ zIndex: 200, background: 'var(--dialog-bg)', border: '1px solid rgb(var(--rgb-foreground) / 0.1)', backdropFilter: 'blur(20px)' }}
             >
-              <div className="px-3 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                <p className="text-[11px] font-bold text-white uppercase tracking-wide truncate">{user.displayName || 'User'}</p>
-                <p className="text-[9px] text-white/25 uppercase tracking-wider truncate mt-0.5">{user.email}</p>
+              <div className="px-3 py-2" style={{ borderBottom: '1px solid rgb(var(--rgb-foreground) / 0.06)' }}>
+                <p className="text-[11px] font-bold text-foreground uppercase tracking-wide truncate">{user.displayName || 'User'}</p>
+                <p className="text-[9px] text-foreground/25 uppercase tracking-wider truncate mt-0.5">{user.email}</p>
               </div>
               <button
                 onClick={async () => { await signOut(); setShowMenu(false); toast.success('SIGNED OUT'); }}
-                className="w-full text-left px-3 py-2 text-[10px] uppercase font-bold tracking-wider text-white/40 hover:text-[#FF2D2D] hover:bg-white/5 transition-all"
+                className="w-full text-left px-3 py-2 text-[10px] uppercase font-bold tracking-wider text-foreground/40 hover:text-(--accent) hover:bg-foreground/5 transition-all"
               >
                 SIGN OUT
               </button>

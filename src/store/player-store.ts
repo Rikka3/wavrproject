@@ -5,8 +5,10 @@ import { pickNextSimilar } from '@/lib/similarity';
 export type ViewTab = 'library' | 'search' | 'playlists' | 'upload';
 export type RepeatMode = 'off' | 'all' | 'one';
 export type TransitionLevel = 'off' | 'low' | 'medium' | 'high';
+export type ThemeName = 'original' | 'darth-pink' | 'diamond';
 
 const TRANSITION_STORAGE_KEY = 'wavr:transition';
+const THEME_STORAGE_KEY = 'wavr:theme';
 
 function loadTransition(): TransitionLevel {
   if (typeof localStorage === 'undefined') return 'off';
@@ -14,6 +16,14 @@ function loadTransition(): TransitionLevel {
     const v = localStorage.getItem(TRANSITION_STORAGE_KEY);
     return v === 'low' || v === 'medium' || v === 'high' || v === 'off' ? v : 'off';
   } catch { return 'off'; }
+}
+
+function loadTheme(): ThemeName {
+  if (typeof localStorage === 'undefined') return 'original';
+  try {
+    const v = localStorage.getItem(THEME_STORAGE_KEY);
+    return v === 'darth-pink' || v === 'diamond' || v === 'original' ? v : 'original';
+  } catch { return 'original'; }
 }
 
 interface PlayerState {
@@ -44,6 +54,7 @@ interface PlayerState {
   shuffle: boolean;
   repeat: RepeatMode;
   transition: TransitionLevel;
+  theme: ThemeName;
   isFullscreen: boolean;
   showMobilePlayer: boolean;
 
@@ -94,6 +105,7 @@ interface PlayerState {
   toggleShuffle: () => void;
   toggleRepeat: () => void;
   setTransition: (level: TransitionLevel) => void;
+  setTheme: (theme: ThemeName) => void;
   nextSong: () => void;
   prevSong: () => void;
   setFullscreen: (f: boolean) => void;
@@ -152,6 +164,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   shuffle: false,
   repeat: 'off',
   transition: loadTransition(),
+  theme: loadTheme(),
   isFullscreen: false,
   showMobilePlayer: false,
 
@@ -245,6 +258,10 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   setTransition: (transition) => {
     try { localStorage.setItem(TRANSITION_STORAGE_KEY, transition); } catch {}
     set({ transition });
+  },
+  setTheme: (theme) => {
+    try { localStorage.setItem(THEME_STORAGE_KEY, theme); } catch {}
+    set({ theme });
   },
   nextSong: () => set((s) => {
     if (s.queue.length === 0) return {};

@@ -43,35 +43,35 @@ export default function AdminCodeDialog({ open, onClose, onSubmit, title, descri
             initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="w-full max-w-xs mx-4"
-            style={{ background: 'rgba(18,18,28,0.95)', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 0 60px rgba(0,0,0,0.5)' }}
+            style={{ background: 'var(--dialog-bg)', border: '1px solid rgb(var(--rgb-foreground) / 0.1)', boxShadow: 'var(--dialog-shadow)' }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-5 pt-5 pb-3">
               <div>
-                <h2 className="text-[13px] font-extrabold uppercase tracking-widest text-white">{title}</h2>
-                <p className="text-[9px] text-white/20 uppercase tracking-widest mt-0.5">
+                <h2 className="text-[13px] font-extrabold uppercase tracking-widest text-foreground">{title}</h2>
+                <p className="text-[9px] text-foreground/20 uppercase tracking-widest mt-0.5">
                   {description || 'ENTER ADMIN CODE TO CONTINUE'}
                 </p>
               </div>
-              <button className="text-white/30 hover:text-white p-1" onClick={onClose} disabled={submitting}>
+              <button className="text-foreground/30 hover:text-foreground p-1" onClick={onClose} disabled={submitting}>
                 <X size={18} />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="px-5 pb-5 space-y-3">
               <div className="relative">
-                <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/15" strokeWidth={1.5} />
+                <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/15" strokeWidth={1.5} />
                 <input
                   type="password" value={code} onChange={(e) => setCode(e.target.value)}
                   placeholder="Admin code" required autoFocus
-                  className="w-full pl-9 pr-3 py-2.5 bg-white/5 text-white text-[11px] uppercase tracking-wide placeholder:text-white/15 outline-none"
-                  style={{ border: '1px solid rgba(255,255,255,0.1)' }}
+                  className="w-full pl-9 pr-3 py-2.5 bg-foreground/5 text-foreground text-[11px] uppercase tracking-wide placeholder:text-foreground/15 outline-none"
+                  style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.1)' }}
                 />
               </div>
               <button
                 type="submit" disabled={!code.trim() || submitting}
-                className="w-full py-2.5 text-[11px] uppercase font-bold tracking-wider text-white transition-all disabled:opacity-40 min-h-[44px]"
-                style={{ border: '1px solid #FF2D2D', background: 'rgba(255,45,45,0.15)' }}
+                className="w-full py-2.5 text-[11px] uppercase font-bold tracking-wider text-foreground transition-all disabled:opacity-40 min-h-[44px]"
+                style={{ border: '1px solid var(--accent)', background: 'rgb(var(--rgb-accent) / 0.15)' }}
               >
                 {submitting ? <Loader2 size={14} className="mx-auto animate-spin" /> : 'CONFIRM'}
               </button>
