@@ -1,0 +1,13 @@
+{
+  "name": "wavr-music-service",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "bun --hot index.ts",
+    "start": "bun index.ts"
+  },
+  "dependencies": {
+    "firebase-admin": "^14.2.0",
+    "music-metadata": "^10.6.3"
+  }
+}

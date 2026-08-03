@@ -1,0 +1,191 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-mono);
+  --font-mono: var(--font-mono);
+  --color-ring: #fff;
+  --color-input: #333;
+  --color-border: #fff;
+  --color-destructive: #FF2D2D;
+  --color-accent-foreground: #000;
+  --color-accent: #FF2D2D;
+  --color-muted-foreground: #888;
+  --color-muted: #111;
+  --color-secondary-foreground: #fff;
+  --color-secondary: #1a1a1a;
+  --color-primary-foreground: #000;
+  --color-primary: #FF2D2D;
+  --color-popover-foreground: #fff;
+  --color-popover: #0a0a0a;
+  --color-card-foreground: #fff;
+  --color-card: #0a0a0a;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+}
+
+:root {
+  --radius: 0px;
+  --background: #020108;
+  --foreground: #ffffff;
+  --card: #0a0a0a;
+  --card-foreground: #ffffff;
+  --popover: #0a0a0a;
+  --popover-foreground: #ffffff;
+  --primary: #FF2D2D;
+  --primary-foreground: #ffffff;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #ffffff;
+  --muted: #111111;
+  --muted-foreground: #888888;
+  --accent: #FF2D2D;
+  --accent-foreground: #ffffff;
+  --destructive: #FF2D2D;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #FF2D2D;
+}
+
+@layer base {
+  * { @apply border-border outline-ring/50; box-sizing: border-box; }
+  html, body {
+    @apply bg-black text-white;
+    font-family: ui-monospace, 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+}
+
+/* ── Glass panels ── */
+.glass-panel {
+  background: rgba(18, 18, 24, 0.65);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.glass-panel-dim {
+  background: rgba(12, 12, 18, 0.7);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.glass-panel-accent {
+  background: rgba(18, 18, 24, 0.65);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  border: 1px solid #FF2D2D;
+}
+.glass-panel-tall {
+  background: rgba(14, 14, 20, 0.7);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ── Buttons ── */
+.brutal-btn {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-family: ui-monospace, monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.brutal-btn:hover { background: rgba(255, 255, 255, 0.15); border-color: rgba(255, 255, 255, 0.35); }
+.brutal-btn:active { transform: scale(0.97); }
+.brutal-btn-accent { border-color: rgba(255, 45, 45, 0.6); color: #FF2D2D; }
+.brutal-btn-accent:hover { background: rgba(255, 45, 45, 0.15); border-color: #FF2D2D; }
+.brutal-btn-active { background: rgba(255, 255, 255, 0.9); color: #000; border-color: rgba(255, 255, 255, 0.9); }
+.brutal-btn-sm { padding: 5px 12px; font-size: 10px; }
+
+/* ── Inputs ── */
+.brutal-input {
+  background: rgba(12, 12, 18, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  outline: none;
+}
+.brutal-input:focus { border-color: rgba(160, 120, 255, 0.6); }
+.brutal-input::placeholder { color: rgba(255, 255, 255, 0.2); }
+
+/* ── Scrollbar ── */
+.custom-scroll::-webkit-scrollbar { width: 4px; }
+.custom-scroll::-webkit-scrollbar-track { background: transparent; }
+.custom-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); border-radius: 2px; }
+.custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.18); }
+
+/* ── Sliders ── */
+.brutal-slider [data-orientation="horizontal"] > [data-orientation="horizontal"] {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+.brutal-slider [data-orientation="horizontal"] [role="slider"] {
+  height: 14px !important; width: 14px !important;
+  background: #fff !important; border: 2px solid rgba(0,0,0,0.3) !important;
+  border-radius: 0 !important; box-shadow: 0 0 10px rgba(160, 130, 255, 0.35) !important;
+}
+.brutal-slider-sm [data-orientation="horizontal"] > [data-orientation="horizontal"] {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+.brutal-slider-sm [data-orientation="horizontal"] [role="slider"] {
+  height: 10px !important; width: 10px !important;
+  background: #fff !important; border: 2px solid rgba(0,0,0,0.3) !important;
+  border-radius: 0 !important; box-shadow: 0 0 8px rgba(160, 130, 255, 0.25) !important;
+}
+
+/* ── Labels & Badges ── */
+.brutal-label {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.15em; color: rgba(255,255,255,0.35);
+  font-family: ui-monospace, monospace;
+}
+.brutal-heading {
+  font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.02em; font-family: ui-monospace, monospace;
+}
+.brutal-badge {
+  border: 1px solid rgba(255,255,255,0.12);
+  font-size: 9px; text-transform: uppercase;
+  letter-spacing: 0.1em; padding: 2px 6px;
+  color: rgba(255,255,255,0.45);
+  font-family: ui-monospace, monospace;
+}
+.brutal-badge-active {
+  background: #FF2D2D; color: #000;
+  border-color: #FF2D2D; font-weight: 700;
+}
+
+/* ── SoundWave Background ── */
+.soundwave-bg {
+  background: linear-gradient(135deg, #0c0a18 0%, #080614 40%, #06040e 70%, #04030a 100%);
+}
+.soundwave-bg::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at 50% 40%, rgba(100, 60, 180, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "WAVR",
+  "short_name": "WAVR",
+  "description": "Self-hosted music player",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121218",
+  "theme_color": "#121218",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
