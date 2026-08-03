@@ -2,16 +2,14 @@
 import { Library, Upload, Search, Disc3, ListMusic, Shield, Trash2, ScanSearch, Loader2, X, Settings } from 'lucide-react';
 import { usePlayerStore, type ViewTab } from '@/store/player-store';
 import AuthModal from './AuthModal';
-import SettingsDialog from './SettingsDialog';
 import { useState, useCallback } from 'react';
 import { fetchDuplicates, deleteDuplicates } from '@/lib/music-api';
 import { appToast as toast } from '@/components/ui/AppToaster';
 import { AnimatePresence, motion } from 'framer-motion';
 
 export default function Sidebar() {
-  const { currentTab, setCurrentTab, songs, genres, selectedGenre, setSelectedGenre, playlists, setActivePlaylistId } = usePlayerStore();
+  const { currentTab, setCurrentTab, songs, genres, selectedGenre, setSelectedGenre, playlists, setActivePlaylistId, setShowSettings } = usePlayerStore();
   const [showAdmin, setShowAdmin] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [adminCode, setAdminCode] = useState('');
   const [deduping, setDeduping] = useState(false);
   const [dupCount, setDupCount] = useState<number | null>(null);
@@ -168,19 +166,20 @@ export default function Sidebar() {
               <button onClick={() => setSelectedGenre('')} className={`w-full text-left px-2 py-1 text-[9px] uppercase tracking-wider font-bold ${!selectedGenre ? 'text-white bg-white/8' : 'text-white/30 hover:text-white/60'}`}>
                 ALL <span className="text-white/15 ml-1">{totalSongs}</span>
               </button>
-              {genres.filter(g => g).map(g => {
-                const count = songs.filter(s => s.genre === g).length;
-                return (
-                  <button key={g} onClick={() => setSelectedGenre(selectedGenre === g ? '' : g)} className={`w-full text-left px-2 py-1 text-[9px] uppercase tracking-wider font-bold ${selectedGenre === g ? 'text-[#FF2D2D]' : 'text-white/30 hover:text-white/60'}`}>
-                    {g} <span className="text-white/15 ml-1">{count}</span>
-                  </button>
-                );
-              })}
+              <div className="grid grid-cols-2 gap-0.5 pt-0.5">
+                {genres.filter(g => g).map(g => {
+                  const count = songs.filter(s => s.genre === g).length;
+                  return (
+                    <button key={g} onClick={() => setSelectedGenre(selectedGenre === g ? '' : g)} className={`w-full text-left px-2 py-1 text-[9px] uppercase tracking-wider font-bold truncate ${selectedGenre === g ? 'text-[#FF2D2D]' : 'text-white/30 hover:text-white/60'}`}>
+                      {g} <span className="text-white/15 ml-0.5">{count}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
       </div>
-      <SettingsDialog open={showSettings} onClose={() => setShowSettings(false)} />
     </div>
   );
 }

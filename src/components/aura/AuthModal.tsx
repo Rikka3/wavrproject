@@ -8,7 +8,7 @@ import { appToast as toast } from '@/components/ui/AppToaster';
 
 type AuthView = 'login' | 'signup';
 
-export default function AuthModal() {
+export default function AuthModal({ compact = false }: { compact?: boolean }) {
   const { user, loading, setUser, authModalOpen, closeAuthModal } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
   const [view, setView] = useState<AuthView>('login');
@@ -106,7 +106,7 @@ export default function AuthModal() {
 
   // If user is logged in, show avatar/profile button
   if (user) {
-    return <UserProfileMenu />;
+    return <UserProfileMenu compact={compact} />;
   }
 
   // Show login button
@@ -114,11 +114,11 @@ export default function AuthModal() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 text-[10px] uppercase font-bold tracking-wider text-white/40 hover:text-white hover:bg-white/5 transition-all"
+        className={`flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] uppercase font-bold tracking-wider text-white/40 hover:text-white hover:bg-white/5 transition-all ${compact ? 'justify-center h-8 w-8 !p-0 gap-0' : 'w-full justify-center'}`}
         style={{ border: '1px solid rgba(255,255,255,0.08)' }}
       >
         {loading ? <Loader2 size={12} className="animate-spin" /> : <LogIn size={12} />}
-        SIGN IN
+        {!compact && 'SIGN IN'}
       </button>
 
       <AnimatePresence>
@@ -224,7 +224,7 @@ export default function AuthModal() {
   );
 }
 
-function UserProfileMenu() {
+function UserProfileMenu({ compact = false }: { compact?: boolean }) {
   const { user, signOut } = useAuthStore();
   const [showMenu, setShowMenu] = useState(false);
   if (!user) return null;
@@ -235,15 +235,17 @@ function UserProfileMenu() {
     <div className="relative">
       <button
         onClick={() => setShowMenu(!showMenu)}
-        className="w-full flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 transition-all max-w-full min-w-0"
+        className={`flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 transition-all max-w-full min-w-0 ${compact ? 'w-auto p-1' : 'w-full'}`}
         style={{ border: '1px solid rgba(255,255,255,0.08)' }}
       >
         <div className="w-6 h-6 flex items-center justify-center text-[10px] font-bold uppercase text-white/70 flex-shrink-0" style={{ border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.06)' }}>
           {user.photoURL ? <img src={user.photoURL} className="w-full h-full object-cover" alt="" /> : initials}
         </div>
-        <span className="text-[10px] text-white/40 uppercase tracking-wider font-bold hidden lg:inline flex-1 min-w-0 truncate text-left">
-          {user.displayName || user.email?.split('@')[0]}
-        </span>
+        {!compact && (
+          <span className="text-[10px] text-white/40 uppercase tracking-wider font-bold hidden lg:inline flex-1 min-w-0 truncate text-left">
+            {user.displayName || user.email?.split('@')[0]}
+          </span>
+        )}
       </button>
 
       <AnimatePresence>

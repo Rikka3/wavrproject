@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useCallback, useState } from 'react';
-import { Music, Filter, RefreshCw, Loader2 } from 'lucide-react';
+import { Music, Filter, RefreshCw, Loader2, Settings } from 'lucide-react';
 import { usePlayerStore } from '@/store/player-store';
 import { fetchSongs, fetchGenres, fetchArtists, rescanLibrary } from '@/lib/music-api';
 import Sidebar from '@/components/aura/Sidebar';
@@ -11,6 +11,8 @@ import SearchBar from '@/components/aura/SearchBar';
 import UploadZone from '@/components/aura/UploadZone';
 import PlaylistPanel from '@/components/aura/PlaylistPanel';
 import AddToPlaylistDialog from '@/components/aura/AddToPlaylistDialog';
+import AuthModal from '@/components/aura/AuthModal';
+import SettingsDialog from '@/components/aura/SettingsDialog';
 import Player from '@/components/aura/Player';
 import LyricsDrawer from '@/components/aura/LyricsDrawer';
 import QueueDrawer from '@/components/aura/QueueDrawer';
@@ -20,7 +22,7 @@ import AppToaster from '@/components/ui/AppToaster';
 import { appToast as toast } from '@/components/ui/AppToaster';
 
 export default function Home() {
-  const { currentTab, setIsLoading, setSongs, setGenres, setArtists, filteredSongs, songs } = usePlayerStore();
+  const { currentTab, setIsLoading, setSongs, setGenres, setArtists, filteredSongs, songs, showSettings, setShowSettings } = usePlayerStore();
   const [scanning, setScanning] = useState(false);
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -62,7 +64,16 @@ export default function Home() {
             <div className="hidden md:block flex-1 max-w-sm mx-auto">
               <SearchBar />
             </div>
-            <div className="md:hidden w-6" />
+            <div className="md:hidden flex items-center gap-1.5">
+              <AuthModal compact />
+              <button
+                onClick={() => setShowSettings(true)}
+                className="h-8 w-8 flex items-center justify-center text-white/40 hover:text-white transition-colors"
+                style={{ border: '1px solid rgba(255,255,255,0.08)' }}
+              >
+                <Settings size={14} strokeWidth={2} />
+              </button>
+            </div>
           </div>
 
           {/* Mobile search */}
@@ -144,6 +155,7 @@ export default function Home() {
       <KeyboardShortcuts />
       <MobileNav />
       <AddToPlaylistDialog />
+      <SettingsDialog open={showSettings} onClose={() => setShowSettings(false)} />
       <AppToaster />
     </div>
   );

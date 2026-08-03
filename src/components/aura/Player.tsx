@@ -283,7 +283,10 @@ export default function Player() {
           <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <button className="text-white/40 hover:text-white p-1" onClick={() => setFullscreen(false)}><ChevronDown size={22} /></button>
             <p className="brutal-label">NOW PLAYING</p>
-            <button className="text-white/40 hover:text-white p-1" onClick={() => setShowQueue(true)}><ListMusic size={18} /></button>
+            <div className="flex items-center gap-1">
+              <button className={`p-1.5 ${showLyrics ? 'text-[#FF2D2D]' : 'text-white/40 hover:text-white'}`} onClick={() => setShowLyrics(!showLyrics)}><Mic size={17} /></button>
+              <button className="text-white/40 hover:text-white p-1" onClick={() => setShowQueue(true)}><ListMusic size={18} /></button>
+            </div>
           </div>
           <div className="flex-1 flex items-center justify-center px-8 py-4">
             <div className="w-full max-w-xs aspect-square overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 0 60px rgba(120, 80, 255, 0.15)' }}>

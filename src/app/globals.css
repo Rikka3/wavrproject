@@ -136,6 +136,8 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
 }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* ── Sliders ── */
 .brutal-slider [data-orientation="horizontal"] > [data-orientation="horizontal"] {

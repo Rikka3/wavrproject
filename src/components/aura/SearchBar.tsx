@@ -5,7 +5,7 @@ import { fetchSongs } from '@/lib/music-api';
 import { useEffect, useState, useCallback, useRef } from 'react';
 
 export default function SearchBar() {
-  const { selectedGenre, setSelectedGenre, genres, setSongs, setIsLoading, setSearchQuery } = usePlayerStore();
+  const { selectedGenre, setSelectedGenre, genres, setFilteredSongs, setIsLoading, setSearchQuery } = usePlayerStore();
   const [localQuery, setLocalQuery] = useState('');
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -14,10 +14,10 @@ export default function SearchBar() {
     try {
       const query = g && !q ? '' : q;
       const res = await fetchSongs(query || undefined, g || undefined);
-      setSongs(res.songs);
+      setFilteredSongs(res.songs);
     } catch (e: any) { console.error(e); }
     setIsLoading(false);
-  }, [setSongs, setIsLoading]);
+  }, [setFilteredSongs, setIsLoading]);
 
   useEffect(() => {
     clearTimeout(debounceRef.current);
@@ -39,7 +39,7 @@ export default function SearchBar() {
         {localQuery && <button onClick={() => { setLocalQuery(''); setSearchQuery(''); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/25 hover:text-white"><X size={12} /></button>}
       </div>
       {genres.length > 0 && (
-        <div className="flex gap-1.5 overflow-x-auto pb-1">
+        <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
           <button onClick={() => setSelectedGenre('')} className={`brutal-btn-sm brutal-btn ${selectedGenre === '' ? 'brutal-btn-active' : ''}`}>ALL</button>
           {genres.filter(g => g).map(g => (
             <button key={g} onClick={() => setSelectedGenre(selectedGenre === g ? '' : g)} className={`brutal-btn-sm brutal-btn ${selectedGenre === g ? 'brutal-btn-active brutal-btn-accent' : ''}`}>{g}</button>

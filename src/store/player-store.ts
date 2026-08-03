@@ -28,6 +28,7 @@ interface PlayerState {
   isLoading: boolean;
   isUploading: boolean;
   uploadProgress: number;
+  showSettings: boolean;
 
   // Player
   currentSong: Song | null;
@@ -75,6 +76,7 @@ interface PlayerState {
   setIsLoading: (l: boolean) => void;
   setIsUploading: (u: boolean) => void;
   setUploadProgress: (p: number) => void;
+  setShowSettings: (s: boolean) => void;
   addSong: (song: Song) => void;
   removeSong: (id: string) => void;
 
@@ -131,6 +133,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   isLoading: false,
   isUploading: false,
   uploadProgress: 0,
+  showSettings: false,
 
   // Player initial state
   currentSong: null,
@@ -178,6 +181,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   setIsLoading: (isLoading) => set({ isLoading }),
   setIsUploading: (isUploading) => set({ isUploading }),
   setUploadProgress: (uploadProgress) => set({ uploadProgress }),
+  setShowSettings: (showSettings) => set({ showSettings }),
   addSong: (song) => set((s) => ({
     songs: [song, ...s.songs],
     filteredSongs: [song, ...s.filteredSongs]
