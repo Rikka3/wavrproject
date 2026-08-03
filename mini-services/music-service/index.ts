@@ -800,7 +800,7 @@ const server = Bun.serve({
         return cors(await handleBatchUpload(req, userId));
       }
 
-      // List songs
+      // List songs (catalog is shared: user_id only controls ownership/delete rights)
       if (path === '/songs' && method === 'GET') {
         const q = getQuery(req, 'q');
         const genre = getQuery(req, 'genre');
@@ -809,23 +809,23 @@ const server = Bun.serve({
         const offset = (page - 1) * limit;
 
         if (q || genre) {
-          const songs = userId ? stmtSearch.all(q, q, q, genre, genre, userId, limit, offset) as any[] : stmtSearchNoUser.all(q, q, q, genre, genre, limit, offset) as any[];
-          const count = userId ? stmtCountSearch.get(q, q, q, genre, genre, userId) as any : stmtCountSearchNoUser.get(q, q, q, genre, genre) as any;
+          const songs = stmtSearchNoUser.all(q, q, q, genre, genre, limit, offset) as any[];
+          const count = stmtCountSearchNoUser.get(q, q, q, genre, genre) as any;
           return Response.json({ songs, total: count.total, page, limit }, { headers });
         }
-        const songs = userId ? stmtGetAll.all(userId) as any[] : stmtGetAllNoUser.all() as any[];
+        const songs = stmtGetAllNoUser.all() as any[];
         return Response.json({ songs, total: songs.length }, { headers });
       }
 
-      // Get genres
+      // Get genres (shared catalog)
       if (path === '/genres' && method === 'GET') {
-        const genres = userId ? stmtGetGenres.all(userId) as any[] : stmtGetGenresNoUser.all() as any[];
+        const genres = stmtGetGenresNoUser.all() as any[];
         return Response.json({ genres: genres.map(g => g.genre) }, { headers });
       }
 
-      // Get artists
+      // Get artists (shared catalog)
       if (path === '/artists' && method === 'GET') {
-        const artists = userId ? stmtGetArtists.all(userId) as any[] : stmtGetArtistsNoUser.all() as any[];
+        const artists = stmtGetArtistsNoUser.all() as any[];
         return Response.json({ artists: artists.map(a => a.artist) }, { headers });
       }
 

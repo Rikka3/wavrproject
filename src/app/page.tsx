@@ -17,6 +17,7 @@ import Player from '@/components/aura/Player';
 import LyricsDrawer from '@/components/aura/LyricsDrawer';
 import QueueDrawer from '@/components/aura/QueueDrawer';
 import KeyboardShortcuts from '@/components/aura/KeyboardShortcuts';
+import { useAuthStore } from '@/store/auth-store';
 import { AnimatePresence, motion } from 'framer-motion';
 import AppToaster from '@/components/ui/AppToaster';
 import { appToast as toast } from '@/components/ui/AppToaster';
@@ -37,7 +38,12 @@ export default function Home() {
     setIsLoading(false);
   }, [setSongs, setGenres, setArtists, setIsLoading]);
 
-  useEffect(() => { loadData(); }, [loadData]);
+  // Load the catalog on mount, and refetch once auth settles or the account
+  // changes so a pre-auth fetch can never leave a stale view behind.
+  // Idempotent: the catalog is shared across accounts.
+  const authUser = useAuthStore(s => s.user);
+  const authLoading = useAuthStore(s => s.loading);
+  useEffect(() => { loadData(); }, [loadData, authUser?.uid, authLoading]);
 
   const handleRescan = async () => {
     if (scanning) return;
