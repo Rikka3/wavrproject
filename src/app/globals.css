@@ -62,6 +62,7 @@
   --panel-bg: rgba(18, 18, 24, 0.65);
   --panel-dim-bg: rgba(12, 12, 18, 0.7);
   --panel-tall-bg: rgba(14, 14, 20, 0.7);
+  --bar-bg: rgba(14, 14, 20, 0.85);
   --dialog-bg: rgba(18, 18, 28, 0.95);
   --fullscreen-bg: rgba(8, 6, 16, 0.92);
   --input-bg: rgba(12, 12, 18, 0.6);
@@ -95,6 +96,7 @@
   --panel-bg: rgba(30, 17, 44, 0.65);
   --panel-dim-bg: rgba(24, 13, 36, 0.7);
   --panel-tall-bg: rgba(26, 14, 38, 0.7);
+  --bar-bg: rgba(30, 17, 44, 0.85);
   --dialog-bg: rgba(28, 14, 40, 0.95);
   --fullscreen-bg: rgba(16, 7, 26, 0.92);
   --input-bg: rgba(24, 12, 36, 0.6);
@@ -135,6 +137,7 @@
   --panel-bg: rgba(255, 255, 255, 0.82);
   --panel-dim-bg: rgba(255, 255, 255, 0.85);
   --panel-tall-bg: rgba(255, 255, 255, 0.85);
+  --bar-bg: rgba(255, 255, 255, 0.9);
   --dialog-bg: rgba(255, 255, 255, 0.97);
   --fullscreen-bg: rgba(255, 255, 255, 0.94);
   --input-bg: rgba(255, 255, 255, 0.8);
@@ -154,7 +157,7 @@
   html, body {
     background: var(--background);
     color: var(--foreground);
-    font-family: ui-monospace, 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+    font-family: var(--font-app, ui-monospace, 'SF Mono', 'Cascadia Code', 'Fira Code', monospace);
     -webkit-font-smoothing: antialiased;
     margin: 0;
     padding: 0;
@@ -165,30 +168,56 @@
   }
 }
 
+/* Fixed-height app viewport that tracks the mobile browser URL bar */
+.app-viewport {
+  height: 100vh;
+  height: 100dvh;
+}
+
 /* ── Glass panels ── */
 .glass-panel {
   background: var(--panel-bg);
-  backdrop-filter: blur(16px) saturate(1.3);
-  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  backdrop-filter: blur(20px) saturate(1.3);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
   border: 1px solid rgb(var(--rgb-foreground) / 0.1);
 }
 .glass-panel-dim {
   background: var(--panel-dim-bg);
-  backdrop-filter: blur(14px) saturate(1.2);
-  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
   border: 1px solid rgb(var(--rgb-foreground) / 0.08);
 }
 .glass-panel-accent {
   background: var(--panel-bg);
-  backdrop-filter: blur(16px) saturate(1.3);
-  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  backdrop-filter: blur(20px) saturate(1.3);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
   border: 1px solid var(--accent);
 }
 .glass-panel-tall {
   background: var(--panel-tall-bg);
-  backdrop-filter: blur(16px) saturate(1.3);
-  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  backdrop-filter: blur(20px) saturate(1.3);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
   border-top: 1px solid rgb(var(--rgb-foreground) / 0.1);
+}
+.glass-bar {
+  background: var(--bar-bg);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border-top: 1px solid rgb(var(--rgb-foreground) / 0.12);
+}
+
+/* Fallback for browsers without backdrop-filter: near-solid panels */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-panel { background: rgba(16, 16, 22, 0.96); }
+  .glass-panel-dim { background: rgba(12, 12, 18, 0.97); }
+  .glass-panel-tall { background: rgba(14, 14, 20, 0.97); }
+  .glass-bar { background: rgba(14, 14, 20, 0.97); }
+  :root[data-theme='darth-pink'] .glass-panel { background: rgba(28, 14, 40, 0.96); }
+  :root[data-theme='darth-pink'] .glass-panel-tall { background: rgba(24, 13, 36, 0.97); }
+  :root[data-theme='darth-pink'] .glass-bar { background: rgba(26, 14, 38, 0.97); }
+  :root[data-theme='diamond'] .glass-panel { background: rgba(255, 255, 255, 0.96); }
+  :root[data-theme='diamond'] .glass-panel-tall { background: rgba(255, 255, 255, 0.97); }
+  :root[data-theme='diamond'] .glass-bar { background: rgba(255, 255, 255, 0.97); }
 }
 
 /* ── Buttons ── */
@@ -198,7 +227,7 @@
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgb(var(--rgb-foreground) / 0.2);
   color: var(--foreground);
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-app, ui-monospace, monospace);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -219,7 +248,7 @@
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgb(var(--rgb-foreground) / 0.12);
   color: var(--foreground);
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-app, ui-monospace, monospace);
   font-size: 13px;
   outline: none;
 }
@@ -260,18 +289,18 @@
 .brutal-label {
   font-size: 9px; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.15em; color: rgb(var(--rgb-foreground) / 0.35);
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-app, ui-monospace, monospace);
 }
 .brutal-heading {
   font-weight: 800; text-transform: uppercase;
-  letter-spacing: 0.02em; font-family: ui-monospace, monospace;
+  letter-spacing: 0.02em; font-family: var(--font-app, ui-monospace, monospace);
 }
 .brutal-badge {
   border: 1px solid rgb(var(--rgb-foreground) / 0.12);
   font-size: 9px; text-transform: uppercase;
   letter-spacing: 0.1em; padding: 2px 6px;
   color: rgb(var(--rgb-foreground) / 0.45);
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-app, ui-monospace, monospace);
 }
 .brutal-badge-active {
   background: var(--accent); color: #000;
@@ -294,4 +323,43 @@
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* ── Font picker ── */
+:root[data-font='bodoni-moda'] {
+  --font-app: var(--font-bodoni-moda), 'Times New Roman', serif;
+}
+:root[data-font='maven-pro'] {
+  --font-app: var(--font-maven-pro), 'Segoe UI', sans-serif;
+}
+:root[data-font='jost'] {
+  --font-app: var(--font-jost), 'Segoe UI', sans-serif;
+}
+
+/* ── Diamond Whites: lift faint opacity tiers for light-background legibility ── */
+:root[data-theme='diamond'] {
+  .text-foreground\/6 { color: rgb(var(--rgb-foreground) / 0.35); }
+  .text-foreground\/8 { color: rgb(var(--rgb-foreground) / 0.38); }
+  .text-foreground\/10 { color: rgb(var(--rgb-foreground) / 0.4); }
+  .text-foreground\/12 { color: rgb(var(--rgb-foreground) / 0.42); }
+  .text-foreground\/15 { color: rgb(var(--rgb-foreground) / 0.45); }
+  .text-foreground\/20 { color: rgb(var(--rgb-foreground) / 0.5); }
+  .text-foreground\/25 { color: rgb(var(--rgb-foreground) / 0.55); }
+  .text-foreground\/30 { color: rgb(var(--rgb-foreground) / 0.6); }
+  .bg-foreground\/4, .bg-foreground\/5 { background: rgb(var(--rgb-foreground) / 0.12); }
+  .bg-foreground\/8 { background: rgb(var(--rgb-foreground) / 0.16); }
+  .border-foreground\/8, .border-foreground\/10 { border-color: rgb(var(--rgb-foreground) / 0.2); }
+  .glass-panel { border-color: rgb(var(--rgb-foreground) / 0.18); }
+  .glass-panel-dim { border-color: rgb(var(--rgb-foreground) / 0.16); }
+  .glass-panel-tall { border-top-color: rgb(var(--rgb-foreground) / 0.18); }
+  .glass-bar { border-top-color: rgb(var(--rgb-foreground) / 0.2); }
+  .brutal-btn { border-color: rgb(var(--rgb-foreground) / 0.35); }
+  .brutal-btn:hover { background: rgb(var(--rgb-foreground) / 0.2); }
+  .brutal-input { border-color: rgb(var(--rgb-foreground) / 0.25); }
+  .brutal-input::placeholder { color: rgb(var(--rgb-foreground) / 0.4); }
+  .brutal-label { color: rgb(var(--rgb-foreground) / 0.5); }
+  .brutal-badge { color: rgb(var(--rgb-foreground) / 0.6); }
+  --slider-track: rgba(11, 11, 18, 0.15);
+  --scroll-thumb: rgba(11, 11, 18, 0.2);
+  --scroll-thumb-hover: rgba(11, 11, 18, 0.35);
 }

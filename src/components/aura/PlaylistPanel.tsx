@@ -58,7 +58,7 @@ function PlaylistSettingsDialog({ playlist, onClose }: { playlist: Playlist; onC
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       className="fixed inset-0 flex items-center justify-center"
-      style={{ zIndex: 300, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)' }}
+      style={{ zIndex: 300, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
       onClick={onClose}
     >
       <motion.div
@@ -228,7 +228,7 @@ function CreatePlaylistDialog() {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center" style={{ zIndex: 200, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
+    <div className="fixed inset-0 flex items-center justify-center" style={{ zIndex: 200, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
         className="glass-panel p-5 w-full max-w-sm mx-4"
@@ -460,7 +460,7 @@ function PlaylistDetailView({ playlistId, onBack }: { playlistId: string; onBack
       )}
 
       {/* Track list */}
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scroll pb-24 md:pb-20">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scroll pb-[calc(96px+env(safe-area-inset-bottom,0px))] md:pb-20">
         <TrackList
           songs={playlist?.songs}
           queueOverride={playlist?.songs}
@@ -552,7 +552,7 @@ export default function PlaylistPanel() {
       </div>
 
       {/* Playlist list */}
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scroll pb-24 md:pb-20">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scroll pb-[calc(96px+env(safe-area-inset-bottom,0px))] md:pb-20">
         {loading ? (
           <div className="space-y-1 p-1">
             {Array.from({ length: 3 }).map((_, i) => (

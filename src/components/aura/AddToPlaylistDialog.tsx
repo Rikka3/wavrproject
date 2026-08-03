@@ -68,7 +68,7 @@ export default function AddToPlaylistDialog() {
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       className="fixed inset-0 flex items-end sm:items-center justify-center"
-      style={{ zIndex: 200, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
+      style={{ zIndex: 200, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
       onClick={() => { setShowAddToPlaylist(false); setAddToPlaylistSongId(null); setShowNew(false); }}
     >
       <motion.div

@@ -36,7 +36,7 @@ export default function AdminCodeDialog({ open, onClose, onSubmit, title, descri
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           className="fixed inset-0 flex items-center justify-center"
-          style={{ zIndex: 400, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)' }}
+          style={{ zIndex: 400, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
           onClick={() => !submitting && onClose()}
         >
           <motion.div

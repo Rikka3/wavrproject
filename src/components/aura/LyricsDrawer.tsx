@@ -147,9 +147,9 @@ export default function LyricsDrawer() {
           className="fixed inset-0 flex flex-col"
           style={{
             zIndex: 110,
-            background: 'rgba(8, 6, 16, 0.95)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
+            background: 'var(--fullscreen-bg)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
             borderTop: '1px solid rgb(var(--rgb-foreground) / 0.08)',
           }}
         >

@@ -60,15 +60,15 @@ export default function AppToaster() {
 
   return (
     <div
-      className="fixed top-4 right-4 flex flex-col gap-2"
-      style={{ zIndex: 200, maxWidth: '360px' }}
+      className="fixed right-4 flex flex-col gap-2"
+      style={{ zIndex: 200, maxWidth: '360px', top: 'calc(16px + env(safe-area-inset-top, 0px))' }}
     >
       {toasts.map(t => (
         <div
           key={t.id}
           className="flex items-center gap-2.5 px-4 py-3 text-foreground text-[11px] font-bold uppercase tracking-wider animate-in slide-in-from-right"
           style={{
-            background: 'rgba(18,18,24,0.95)',
+            background: 'var(--dialog-bg)',
             backdropFilter: 'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',
             borderLeft: `3px solid ${borderColor(t.type)}`,

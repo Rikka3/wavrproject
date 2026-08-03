@@ -23,12 +23,13 @@ import AppToaster from '@/components/ui/AppToaster';
 import { appToast as toast } from '@/components/ui/AppToaster';
 
 export default function Home() {
-  const { currentTab, setIsLoading, setSongs, setGenres, setArtists, filteredSongs, songs, showSettings, setShowSettings, theme } = usePlayerStore();
+  const { currentTab, setIsLoading, setSongs, setGenres, setArtists, filteredSongs, songs, showSettings, setShowSettings, theme, font } = usePlayerStore();
   const [scanning, setScanning] = useState(false);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-  }, [theme]);
+    document.documentElement.dataset.font = font;
+  }, [theme, font]);
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -60,7 +61,7 @@ export default function Home() {
   };
 
   return (
-    <div className="soundwave-bg" style={{ width: '100vw', height: '100vh', overflow: 'hidden', position: 'relative' }}>
+    <div className="soundwave-bg app-viewport" style={{ width: '100%', overflow: 'hidden', position: 'relative' }}>
       {/* App shell */}
       <div className="relative flex" style={{ width: '100%', height: '100%', zIndex: 10 }}>
         <Sidebar />
@@ -123,7 +124,7 @@ export default function Home() {
                       {scanning ? <Loader2 size={10} className="mr-1 animate-spin" /> : <RefreshCw size={10} className="mr-1" />}{scanning ? 'SCANNING' : 'RESCAN DISK'}
                     </button>
                   </div>
-                  <div className="flex-1 min-h-0 overflow-y-auto custom-scroll pb-24 md:pb-20"><TrackList /></div>
+                  <div className="flex-1 min-h-0 overflow-y-auto custom-scroll pb-[calc(96px+env(safe-area-inset-bottom,0px))] md:pb-20"><TrackList /></div>
                 </motion.div>
               )}
 
@@ -132,7 +133,7 @@ export default function Home() {
                   <div className="md:hidden mb-1.5 px-1">
                     <h2 className="text-[12px] font-extrabold uppercase tracking-widest text-foreground">SEARCH &amp; FILTER</h2>
                   </div>
-                  <div className="flex-1 min-h-0 overflow-y-auto custom-scroll pb-24 md:pb-20"><TrackList /></div>
+                  <div className="flex-1 min-h-0 overflow-y-auto custom-scroll pb-[calc(96px+env(safe-area-inset-bottom,0px))] md:pb-20"><TrackList /></div>
                 </motion.div>
               )}
 
@@ -151,7 +152,7 @@ export default function Home() {
                     <h2 className="text-[12px] font-extrabold uppercase tracking-widest text-foreground">UPLOAD</h2>
                     <p className="brutal-label mt-0.5">METADATA EXTRACTED AUTOMATICALLY</p>
                   </div>
-                  <div className="flex-1 overflow-y-auto custom-scroll pb-24 md:pb-20"><UploadZone /></div>
+                  <div className="flex-1 overflow-y-auto custom-scroll pb-[calc(96px+env(safe-area-inset-bottom,0px))] md:pb-20"><UploadZone /></div>
                 </motion.div>
               )}
             </AnimatePresence>

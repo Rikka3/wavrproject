@@ -126,7 +126,7 @@ export default function AuthModal({ compact = false }: { compact?: boolean }) {
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 flex items-center justify-center"
-            style={{ zIndex: 300, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)' }}
+            style={{ zIndex: 300, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
             onClick={() => setIsOpen(false)}
           >
             <motion.div
@@ -255,7 +255,7 @@ function UserProfileMenu({ compact = false }: { compact?: boolean }) {
             <motion.div
               initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
               className="absolute top-full right-0 mt-1 w-52 py-1.5"
-              style={{ zIndex: 200, background: 'var(--dialog-bg)', border: '1px solid rgb(var(--rgb-foreground) / 0.1)', backdropFilter: 'blur(20px)' }}
+              style={{ zIndex: 200, background: 'var(--dialog-bg)', border: '1px solid rgb(var(--rgb-foreground) / 0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
             >
               <div className="px-3 py-2" style={{ borderBottom: '1px solid rgb(var(--rgb-foreground) / 0.06)' }}>
                 <p className="text-[11px] font-bold text-foreground uppercase tracking-wide truncate">{user.displayName || 'User'}</p>

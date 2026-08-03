@@ -1,7 +1,7 @@
 'use client';
 import { X, Settings, ChevronDown, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { usePlayerStore, type TransitionLevel, type ThemeName } from '@/store/player-store';
+import { usePlayerStore, type TransitionLevel, type ThemeName, type FontName } from '@/store/player-store';
 import { useState } from 'react';
 
 interface SettingsDialogProps {
@@ -22,12 +22,22 @@ const THEME_OPTIONS: Array<{ id: ThemeName; label: string; hint: string; bg: str
   { id: 'diamond', label: 'DIAMOND WHITES', hint: 'LIGHT MODE', bg: 'linear-gradient(135deg, #f6f5f3, #e7e6e4)', dot: '#E82E2E' },
 ];
 
+const FONT_OPTIONS: Array<{ id: FontName; label: string; family: string }> = [
+  { id: 'default', label: 'DEFAULT', family: 'ui-monospace, "SF Mono", "Cascadia Code", "Fira Code", monospace' },
+  { id: 'bodoni-moda', label: 'BODONI MODA', family: 'var(--font-bodoni-moda), "Times New Roman", serif' },
+  { id: 'maven-pro', label: 'MAVEN PRO', family: 'var(--font-maven-pro), "Segoe UI", sans-serif' },
+  { id: 'jost', label: 'JOST', family: 'var(--font-jost), "Segoe UI", sans-serif' },
+];
+
 export default function SettingsDialog({ open, onClose }: SettingsDialogProps) {
   const transition = usePlayerStore(s => s.transition);
   const setTransition = usePlayerStore(s => s.setTransition);
   const theme = usePlayerStore(s => s.theme);
   const setTheme = usePlayerStore(s => s.setTheme);
+  const font = usePlayerStore(s => s.font);
+  const setFont = usePlayerStore(s => s.setFont);
   const [themeOpen, setThemeOpen] = useState(false);
+  const [fontOpen, setFontOpen] = useState(false);
 
   return (
     <AnimatePresence>
@@ -35,7 +45,7 @@ export default function SettingsDialog({ open, onClose }: SettingsDialogProps) {
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           className="fixed inset-0 flex items-center justify-center"
-          style={{ zIndex: 400, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)' }}
+          style={{ zIndex: 400, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
           onClick={onClose}
         >
           <motion.div
@@ -95,6 +105,48 @@ export default function SettingsDialog({ open, onClose }: SettingsDialogProps) {
                             </div>
                             <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: opt.dot }} />
                             {theme === opt.id && <Check size={12} className="text-[var(--accent)] flex-shrink-0" />}
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Font dropdown */}
+              <div>
+                <p className="text-[10px] font-extrabold uppercase tracking-widest text-foreground">FONT</p>
+                <p className="text-[9px] text-foreground/25 uppercase tracking-wider mt-1">APPLIES INSTANTLY ACROSS THE APP</p>
+                <button
+                  onClick={() => setFontOpen(!fontOpen)}
+                  className="w-full mt-2 flex items-center gap-2.5 px-3 py-2 transition-all"
+                  style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.12)', background: 'rgb(var(--rgb-foreground) / 0.04)' }}
+                >
+                  <span className="flex-1 text-left text-[10px] font-bold uppercase tracking-wider text-foreground" style={{ fontFamily: FONT_OPTIONS.find(f => f.id === font)?.family }}>
+                    {FONT_OPTIONS.find(f => f.id === font)?.label}
+                  </span>
+                  <ChevronDown size={12} className={`text-foreground/30 transition-transform ${fontOpen ? 'rotate-180' : ''}`} />
+                </button>
+                <AnimatePresence>
+                  {fontOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="mt-1 space-y-0.5">
+                        {FONT_OPTIONS.map(opt => (
+                          <button
+                            key={opt.id}
+                            onClick={() => { setFont(opt.id); setFontOpen(false); }}
+                            className={`w-full flex items-center gap-2.5 px-3 py-2 transition-all ${
+                              font === opt.id ? 'bg-foreground/8' : 'hover:bg-foreground/[0.03]'
+                            }`}
+                            style={{ border: font === opt.id ? '1px solid var(--accent)' : '1px solid transparent' }}
+                          >
+                            <span className="flex-1 text-left text-[11px] font-bold uppercase tracking-wider text-foreground" style={{ fontFamily: opt.family }}>
+                              {opt.label}
+                            </span>
+                            {font === opt.id && <Check size={12} className="text-[var(--accent)] flex-shrink-0" />}
                           </button>
                         ))}
                       </div>

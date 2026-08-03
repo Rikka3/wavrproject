@@ -87,7 +87,7 @@ export default function QueueDrawer() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0"
-            style={{ zIndex: 89, background: 'var(--art-bg)' }}
+            style={{ zIndex: 89, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
             onClick={() => setShowQueue(false)}
           />
           {/* Panel */}
@@ -99,9 +99,9 @@ export default function QueueDrawer() {
             className="fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] flex flex-col"
             style={{
               zIndex: 90,
-              background: 'rgba(14, 14, 20, 0.85)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
+              background: 'var(--dialog-bg)',
+              backdropFilter: 'blur(24px)',
+              WebkitBackdropFilter: 'blur(24px)',
               borderLeft: '1px solid rgb(var(--rgb-foreground) / 0.1)',
             }}
           >

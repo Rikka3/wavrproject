@@ -264,17 +264,17 @@ export default function Player() {
         <motion.div
           initial={{ y: 80 }} animate={{ y: 0 }} exit={{ y: 80 }}
           className="md:hidden fixed left-0 right-0 px-2"
-          style={{ bottom: 48, zIndex: 50 }}
+          style={{ bottom: 'calc(64px + env(safe-area-inset-bottom, 0px))', zIndex: 50 }}
         >
-          <div className="glass-panel p-2 flex items-center gap-2">
+          <div className="glass-bar p-2 flex items-center gap-2">
             <Art id={song.id} title={song.title} cls="w-10 h-10" sz={14} />
             <div className="flex-1 min-w-0">
               <p className="text-[11px] font-bold text-foreground truncate uppercase">{song.title}</p>
-              <p className="text-[8px] text-foreground/25 truncate uppercase">{song.artist}</p>
+              <p className="text-[8px] text-foreground/35 truncate uppercase">{song.artist}</p>
             </div>
             <PlayBtn sz="h-8 w-8" isz={14} playing={ip} onToggle={tog} />
-            <button className="h-10 w-10 flex items-center justify-center text-foreground/40 hover:text-foreground" onClick={handleNext}><SkipForward size={16} strokeWidth={2} /></button>
-            <button className="h-10 w-10 flex items-center justify-center text-foreground/40 hover:text-foreground" onClick={() => setFullscreen(true)}><ChevronDown size={18} className="rotate-180" /></button>
+            <button className="h-10 w-10 flex items-center justify-center text-foreground/50 hover:text-foreground" onClick={handleNext}><SkipForward size={16} strokeWidth={2} /></button>
+            <button className="h-10 w-10 flex items-center justify-center text-foreground/50 hover:text-foreground" onClick={() => setFullscreen(true)}><ChevronDown size={18} className="rotate-180" /></button>
           </div>
         </motion.div>
       )}

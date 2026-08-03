@@ -6,9 +6,11 @@ export type ViewTab = 'library' | 'search' | 'playlists' | 'upload';
 export type RepeatMode = 'off' | 'all' | 'one';
 export type TransitionLevel = 'off' | 'low' | 'medium' | 'high';
 export type ThemeName = 'original' | 'darth-pink' | 'diamond';
+export type FontName = 'default' | 'bodoni-moda' | 'maven-pro' | 'jost';
 
 const TRANSITION_STORAGE_KEY = 'wavr:transition';
 const THEME_STORAGE_KEY = 'wavr:theme';
+const FONT_STORAGE_KEY = 'wavr:font';
 
 function loadTransition(): TransitionLevel {
   if (typeof localStorage === 'undefined') return 'off';
@@ -24,6 +26,14 @@ function loadTheme(): ThemeName {
     const v = localStorage.getItem(THEME_STORAGE_KEY);
     return v === 'darth-pink' || v === 'diamond' || v === 'original' ? v : 'original';
   } catch { return 'original'; }
+}
+
+function loadFont(): FontName {
+  if (typeof localStorage === 'undefined') return 'default';
+  try {
+    const v = localStorage.getItem(FONT_STORAGE_KEY);
+    return v === 'bodoni-moda' || v === 'maven-pro' || v === 'jost' || v === 'default' ? v : 'default';
+  } catch { return 'default'; }
 }
 
 interface PlayerState {
@@ -55,6 +65,7 @@ interface PlayerState {
   repeat: RepeatMode;
   transition: TransitionLevel;
   theme: ThemeName;
+  font: FontName;
   isFullscreen: boolean;
   showMobilePlayer: boolean;
 
@@ -106,6 +117,7 @@ interface PlayerState {
   toggleRepeat: () => void;
   setTransition: (level: TransitionLevel) => void;
   setTheme: (theme: ThemeName) => void;
+  setFont: (font: FontName) => void;
   nextSong: () => void;
   prevSong: () => void;
   setFullscreen: (f: boolean) => void;
@@ -165,6 +177,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   repeat: 'off',
   transition: loadTransition(),
   theme: loadTheme(),
+  font: loadFont(),
   isFullscreen: false,
   showMobilePlayer: false,
 
@@ -262,6 +275,10 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   setTheme: (theme) => {
     try { localStorage.setItem(THEME_STORAGE_KEY, theme); } catch {}
     set({ theme });
+  },
+  setFont: (font) => {
+    try { localStorage.setItem(FONT_STORAGE_KEY, font); } catch {}
+    set({ font });
   },
   nextSong: () => set((s) => {
     if (s.queue.length === 0) return {};
