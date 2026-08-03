@@ -166,16 +166,14 @@ export default function Sidebar() {
               <button onClick={() => setSelectedGenre('')} className={`w-full text-left px-2 py-1 text-[9px] uppercase tracking-wider font-bold ${!selectedGenre ? 'text-white bg-white/8' : 'text-white/30 hover:text-white/60'}`}>
                 ALL <span className="text-white/15 ml-1">{totalSongs}</span>
               </button>
-              <div className="grid grid-cols-2 gap-0.5 pt-0.5">
-                {genres.filter(g => g).map(g => {
-                  const count = songs.filter(s => s.genre === g).length;
-                  return (
-                    <button key={g} onClick={() => setSelectedGenre(selectedGenre === g ? '' : g)} className={`w-full text-left px-2 py-1 text-[9px] uppercase tracking-wider font-bold truncate ${selectedGenre === g ? 'text-[#FF2D2D]' : 'text-white/30 hover:text-white/60'}`}>
-                      {g} <span className="text-white/15 ml-0.5">{count}</span>
-                    </button>
-                  );
-                })}
-              </div>
+              {genres.filter(g => g).map(g => {
+                const count = songs.filter(s => s.genre === g).length;
+                return (
+                  <button key={g} onClick={() => setSelectedGenre(selectedGenre === g ? '' : g)} className={`w-full text-left px-2 py-1 text-[9px] uppercase tracking-wider font-bold truncate ${selectedGenre === g ? 'text-[#FF2D2D]' : 'text-white/30 hover:text-white/60'}`}>
+                    {g} <span className="text-white/15 ml-1">{count}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
