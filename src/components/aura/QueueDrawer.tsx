@@ -3,7 +3,6 @@ import { usePlayerStore } from '@/store/player-store';
 import { getArtworkUrl, formatDuration, type Song } from '@/lib/music-api';
 import { X, ChevronUp, ChevronDown, Music2, GripVertical } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 function QueueItem({ song, index, isCurrent, onClick, onMoveUp, onMoveDown, canReorder }: {
   song: Song;
@@ -130,7 +129,7 @@ export default function QueueDrawer() {
                   <p className="text-[8px] text-white/8 uppercase tracking-widest">PLAY A TRACK TO START</p>
                 </div>
               ) : (
-                <ScrollArea className="h-full custom-scroll">
+                <div className="h-full overflow-y-auto custom-scroll">
                   {/* Now Playing */}
                   {nowPlaying && (
                     <div className="px-3 pt-3 pb-1">
@@ -172,7 +171,7 @@ export default function QueueDrawer() {
                       </div>
                     </div>
                   )}
-                </ScrollArea>
+                </div>
               )}
             </div>
           </motion.div>

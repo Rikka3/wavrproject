@@ -5,7 +5,6 @@ import { usePlayerStore } from '@/store/player-store';
 import { fetchLyrics } from '@/lib/music-api';
 import { getGlobalAudio } from '@/components/aura/Player';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface LyricLine {
   time: number;
@@ -213,13 +212,13 @@ export default function LyricsDrawer() {
                 </div>
               </div>
             ) : lyricsPlain ? (
-              <ScrollArea className="h-full px-4 py-6">
+              <div className="h-full overflow-y-auto custom-scroll px-4 py-6">
                 <div className="max-w-lg mx-auto">
                   {lyricsPlain.split('\n').map((line, i) => (
                     <p key={i} className="text-[13px] text-white/30 py-1.5 px-3 leading-relaxed">{line}</p>
                   ))}
                 </div>
-              </ScrollArea>
+              </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-full gap-3">
                 <Music2 size={28} className="text-white/8" strokeWidth={1} />

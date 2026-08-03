@@ -263,10 +263,31 @@ function parseFilenameForMetadata(rawName: string): { title: string; artist: str
   return { title: name, artist: '' };
 }
 
+const iTunesCache = new Map<string, { data: any; ts: number }>();
+const ITUNES_CACHE_TTL = 24 * 60 * 60 * 1000;
+const ITUNES_NEGATIVE_TTL = 10 * 60 * 1000;
+
+async function fetchWithTimeout(url: string, ms: number, init?: RequestInit): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function fetchiTunesMetadata(title: string, artist: string): Promise<Partial<{ title: string; artist: string; album: string; genre: string; artworkUrl: string; year: number }>> {
+  const cacheKey = `${(title || '').toLowerCase().trim()}|${(artist || '').toLowerCase().trim()}`;
+  const cached = iTunesCache.get(cacheKey);
+  if (cached) {
+    const ttl = Object.keys(cached.data || {}).length ? ITUNES_CACHE_TTL : ITUNES_NEGATIVE_TTL;
+    if (Date.now() - cached.ts < ttl) return cached.data;
+    iTunesCache.delete(cacheKey);
+  }
   try {
     const query = [artist, title].filter(Boolean).join(' ');
-    const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=3`, {
+    const res = await fetchWithTimeout(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=3`, 4000, {
       headers: { 'User-Agent': 'WAVR/1.0' }
     });
     const data = await res.json() as any;
@@ -279,20 +300,23 @@ async function fetchiTunesMetadata(title: string, artist: string): Promise<Parti
           if (!artist || rArtist.includes(artistLower) || artistLower.includes(rArtist)) { best = r; break; }
         }
       }
-      return {
+      const result = {
         title: best.trackName || undefined, artist: best.artistName || undefined,
         album: best.collectionName || undefined, genre: best.primaryGenreName || undefined,
         artworkUrl: best.artworkUrl100 ? best.artworkUrl100.replace('100x100', '600x600') : undefined,
         year: best.releaseDate ? new Date(best.releaseDate).getFullYear() : undefined,
       };
+      iTunesCache.set(cacheKey, { data: result, ts: Date.now() });
+      return result;
     }
   } catch (e) { console.error('iTunes API error:', e); }
+  iTunesCache.set(cacheKey, { data: {}, ts: Date.now() });
   return {};
 }
 
 async function downloadArtwork(url: string, id: string): Promise<string> {
   try {
-    const res = await fetch(url);
+    const res = await fetchWithTimeout(url, 8000);
     if (res.ok) {
       const buf = await res.arrayBuffer();
       const ext = url.includes('.png') ? 'png' : 'jpg';

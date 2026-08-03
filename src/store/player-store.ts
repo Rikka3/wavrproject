@@ -4,6 +4,17 @@ import { pickNextSimilar } from '@/lib/similarity';
 
 export type ViewTab = 'library' | 'search' | 'playlists' | 'upload';
 export type RepeatMode = 'off' | 'all' | 'one';
+export type TransitionLevel = 'off' | 'low' | 'medium' | 'high';
+
+const TRANSITION_STORAGE_KEY = 'wavr:transition';
+
+function loadTransition(): TransitionLevel {
+  if (typeof localStorage === 'undefined') return 'off';
+  try {
+    const v = localStorage.getItem(TRANSITION_STORAGE_KEY);
+    return v === 'low' || v === 'medium' || v === 'high' || v === 'off' ? v : 'off';
+  } catch { return 'off'; }
+}
 
 interface PlayerState {
   // Library
@@ -29,6 +40,7 @@ interface PlayerState {
   isMuted: boolean;
   shuffle: boolean;
   repeat: RepeatMode;
+  transition: TransitionLevel;
   isFullscreen: boolean;
   showMobilePlayer: boolean;
 
@@ -76,6 +88,7 @@ interface PlayerState {
   toggleMute: () => void;
   toggleShuffle: () => void;
   toggleRepeat: () => void;
+  setTransition: (level: TransitionLevel) => void;
   nextSong: () => void;
   prevSong: () => void;
   setFullscreen: (f: boolean) => void;
@@ -130,6 +143,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   isMuted: false,
   shuffle: false,
   repeat: 'off',
+  transition: loadTransition(),
   isFullscreen: false,
   showMobilePlayer: false,
 
@@ -217,6 +231,10 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     const idx = modes.indexOf(s.repeat);
     return { repeat: modes[(idx + 1) % 3] };
   }),
+  setTransition: (transition) => {
+    try { localStorage.setItem(TRANSITION_STORAGE_KEY, transition); } catch {}
+    set({ transition });
+  },
   nextSong: () => set((s) => {
     if (s.queue.length === 0) return {};
     if (s.repeat === 'one') return { queueIndex: s.queueIndex, currentTime: 0 };

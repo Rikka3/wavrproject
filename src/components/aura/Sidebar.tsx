@@ -1,8 +1,8 @@
 'use client';
-import { Library, Upload, Search, Disc3, ListMusic, Shield, Trash2, ScanSearch, Loader2, X } from 'lucide-react';
+import { Library, Upload, Search, Disc3, ListMusic, Shield, Trash2, ScanSearch, Loader2, X, Settings } from 'lucide-react';
 import { usePlayerStore, type ViewTab } from '@/store/player-store';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import AuthModal from './AuthModal';
+import SettingsDialog from './SettingsDialog';
 import { useState, useCallback } from 'react';
 import { fetchDuplicates, deleteDuplicates } from '@/lib/music-api';
 import { appToast as toast } from '@/components/ui/AppToaster';
@@ -11,6 +11,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 export default function Sidebar() {
   const { currentTab, setCurrentTab, songs, genres, selectedGenre, setSelectedGenre, playlists, setActivePlaylistId } = usePlayerStore();
   const [showAdmin, setShowAdmin] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [adminCode, setAdminCode] = useState('');
   const [deduping, setDeduping] = useState(false);
   const [dupCount, setDupCount] = useState<number | null>(null);
@@ -103,6 +104,17 @@ export default function Sidebar() {
           </button>
         </div>
 
+        {/* Settings */}
+        <div className="px-1.5" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+          <button
+            onClick={() => setShowSettings(true)}
+            className="w-full flex items-center gap-2.5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white/20 hover:text-white/40 hover:bg-white/[0.02] transition-all"
+          >
+            <Settings size={13} strokeWidth={1.5} />
+            SETTINGS
+          </button>
+        </div>
+
         <AnimatePresence>
           {showAdmin && (
             <motion.div
@@ -152,7 +164,7 @@ export default function Sidebar() {
         {genres.length > 0 && (
           <div className="flex-1 overflow-hidden" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
             <div className="px-3 pt-2.5 pb-1"><p className="brutal-label">GENRES</p></div>
-            <ScrollArea className="h-full px-1.5 pb-2">
+            <div className="h-full overflow-y-auto custom-scroll px-1.5 pb-2">
               <button onClick={() => setSelectedGenre('')} className={`w-full text-left px-2 py-1 text-[9px] uppercase tracking-wider font-bold ${!selectedGenre ? 'text-white bg-white/8' : 'text-white/30 hover:text-white/60'}`}>
                 ALL <span className="text-white/15 ml-1">{totalSongs}</span>
               </button>
@@ -164,10 +176,11 @@ export default function Sidebar() {
                   </button>
                 );
               })}
-            </ScrollArea>
+            </div>
           </div>
         )}
       </div>
+      <SettingsDialog open={showSettings} onClose={() => setShowSettings(false)} />
     </div>
   );
 }

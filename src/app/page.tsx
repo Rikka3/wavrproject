@@ -15,7 +15,6 @@ import Player from '@/components/aura/Player';
 import LyricsDrawer from '@/components/aura/LyricsDrawer';
 import QueueDrawer from '@/components/aura/QueueDrawer';
 import KeyboardShortcuts from '@/components/aura/KeyboardShortcuts';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { AnimatePresence, motion } from 'framer-motion';
 import AppToaster from '@/components/ui/AppToaster';
 import { appToast as toast } from '@/components/ui/AppToaster';
@@ -103,7 +102,7 @@ export default function Home() {
                       {scanning ? <Loader2 size={10} className="mr-1 animate-spin" /> : <RefreshCw size={10} className="mr-1" />}{scanning ? 'SCANNING' : 'RESCAN DISK'}
                     </button>
                   </div>
-                  <ScrollArea className="flex-1 custom-scroll pb-24 md:pb-20"><TrackList /></ScrollArea>
+                  <div className="flex-1 min-h-0 overflow-y-auto custom-scroll pb-24 md:pb-20"><TrackList /></div>
                 </motion.div>
               )}
 
@@ -112,7 +111,7 @@ export default function Home() {
                   <div className="md:hidden mb-1.5 px-1">
                     <h2 className="text-[12px] font-extrabold uppercase tracking-widest text-white">SEARCH &amp; FILTER</h2>
                   </div>
-                  <ScrollArea className="flex-1 custom-scroll pb-24 md:pb-20"><TrackList /></ScrollArea>
+                  <div className="flex-1 min-h-0 overflow-y-auto custom-scroll pb-24 md:pb-20"><TrackList /></div>
                 </motion.div>
               )}
 

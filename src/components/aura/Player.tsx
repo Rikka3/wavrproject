@@ -21,6 +21,55 @@ function getAudio(): HTMLAudioElement {
 
 export function getGlobalAudio(): HTMLAudioElement { return getAudio(); }
 
+// ===== Song transition fade engine (fade-out at end, fade-in at start) =====
+const TRANSITION_SECS = { off: 0, low: 2, medium: 4, high: 8 } as const;
+let fadeState: { mode: 'in' | 'out'; start: number; dur: number; from: number; to: number } | null = null;
+let fadeRAF: number | null = null;
+let fadeOutActive = false;
+let restVol = 0.8;
+
+function stopFade() {
+  if (fadeRAF !== null) cancelAnimationFrame(fadeRAF);
+  fadeRAF = null;
+  fadeState = null;
+}
+
+function startFade(mode: 'in' | 'out', from: number, to: number, durSec: number) {
+  stopFade();
+  fadeState = { mode, start: performance.now(), dur: durSec, from, to };
+  const audio = getAudio();
+  const tick = (now: number) => {
+    if (!fadeState || fadeState.mode !== mode) return;
+    if (audio.paused) {
+      stopFade();
+      fadeOutActive = false;
+      audio.volume = fadeState.to;
+      return;
+    }
+    const p = Math.min(1, (now - fadeState.start) / (fadeState.dur * 1000));
+    audio.volume = fadeState.from + (fadeState.to - fadeState.from) * p;
+    if (p >= 1) {
+      stopFade();
+      if (mode === 'out') fadeOutActive = true;
+      return;
+    }
+    fadeRAF = requestAnimationFrame(tick);
+  };
+  fadeRAF = requestAnimationFrame(tick);
+}
+
+function maybeStartFadeOut(audio: HTMLAudioElement) {
+  const st = usePlayerStore.getState();
+  if (st.transition === 'off' || fadeOutActive || fadeState) return;
+  if (st.isMuted || st.volume <= 0 || audio.paused) return;
+  if (!audio.duration) return;
+  const fadeSec = Math.min(TRANSITION_SECS[st.transition], audio.duration * 0.3);
+  if (fadeSec <= 0 || audio.currentTime < audio.duration - fadeSec) return;
+  fadeOutActive = true;
+  restVol = st.volume;
+  startFade('out', audio.volume, 0, fadeSec);
+}
+
 function Art({ id, title, cls = 'w-12 h-12', sz = 20 }: { id: string; title: string; cls?: string; sz?: number }) {
   const s = getArtworkUrl(id);
   return (
@@ -65,10 +114,29 @@ export default function Player() {
     const audio = getAudio();
     audioReady = true;
 
-    const onTimeUpdate = () => { if (!dr) setCurrentTime(audio.currentTime); };
+    const onTimeUpdate = () => { if (!dr) setCurrentTime(audio.currentTime); maybeStartFadeOut(audio); };
     const onLoadedMetadata = () => setDuration(audio.duration);
     const onDurationChange = () => setDuration(audio.duration);
-    const onEnded = () => nextSong();
+    const onEnded = () => {
+      const beforeId = usePlayerStore.getState().currentSong?.id;
+      nextSong();
+      const afterId = usePlayerStore.getState().currentSong?.id;
+      // Same song replaying (repeat one): reset time and restore/restart volume
+      if (beforeId && afterId === beforeId) {
+        fadeOutActive = false;
+        stopFade();
+        const st = usePlayerStore.getState();
+        audio.currentTime = 0;
+        if (st.transition !== 'off' && !st.isMuted && st.volume > 0) {
+          audio.volume = 0;
+          audio.play().catch(() => {});
+          startFade('in', 0, st.volume, TRANSITION_SECS[st.transition]);
+        } else {
+          audio.volume = st.isMuted ? 0 : st.volume;
+          audio.play().catch(() => {});
+        }
+      }
+    };
     const onError = (e: Event) => {
       const target = e.target as HTMLAudioElement;
       console.error('Audio error:', target.error?.message, target.src);
@@ -103,6 +171,16 @@ export default function Player() {
     audio.load();
     setCurrentTime(0);
     audio.play().catch(err => console.warn('Play failed:', err.message));
+    // Fade in on the new song
+    fadeOutActive = false;
+    stopFade();
+    const st = usePlayerStore.getState();
+    if (st.transition !== 'off' && !st.isMuted && st.volume > 0) {
+      audio.volume = 0;
+      startFade('in', 0, st.volume, TRANSITION_SECS[st.transition]);
+    } else {
+      audio.volume = st.isMuted ? 0 : st.volume;
+    }
   }, [song?.id]);
 
   // Handle play/pause toggle without song change
@@ -115,8 +193,12 @@ export default function Player() {
     }
   }, [ip]);
 
-  // Handle volume changes
-  useEffect(() => { getAudio().volume = mu ? 0 : vo; }, [vo, mu]);
+  // Handle volume changes (cancels any in-flight fade; user takes control)
+  useEffect(() => {
+    stopFade();
+    fadeOutActive = false;
+    getAudio().volume = mu ? 0 : vo;
+  }, [vo, mu]);
 
   const sk = useCallback((v: number[]) => { getAudio().currentTime = v[0]; setCurrentTime(v[0]); }, [setCurrentTime]);
   const sv = useCallback((v: number[]) => setVolume(v[0]), [setVolume]);

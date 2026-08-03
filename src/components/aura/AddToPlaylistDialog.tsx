@@ -6,7 +6,6 @@ import { appToast as toast } from '@/components/ui/AppToaster';
 import { useAuthStore } from '@/store/auth-store';
 import { X, Plus, ListMusic, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { fetchPlaylists } from '@/lib/music-api';
 
 export default function AddToPlaylistDialog() {
@@ -116,7 +115,7 @@ export default function AddToPlaylistDialog() {
             </div>
           </div>
         ) : (
-          <ScrollArea className="max-h-60">
+          <div className="max-h-60 overflow-y-auto custom-scroll">
             {/* Create new button */}
             <button
               className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/[0.03] transition-colors"
@@ -158,7 +157,7 @@ export default function AddToPlaylistDialog() {
                 </button>
               ))
             )}
-          </ScrollArea>
+          </div>
         )}
       </motion.div>
     </motion.div>

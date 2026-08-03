@@ -1,7 +1,7 @@
 'use client';
 import { useState, useCallback, useRef } from 'react';
 import { Upload, Music, CheckCircle, AlertCircle, ListPlus, Plus, X, Loader2, Check, Copy, AlertTriangle } from 'lucide-react';
-import { uploadSong, fetchPlaylists, createPlaylist, batchAddSongsToPlaylist, type Playlist } from '@/lib/music-api';
+import { uploadSongWithProgress, fetchPlaylists, createPlaylist, batchAddSongsToPlaylist, type Playlist } from '@/lib/music-api';
 import { usePlayerStore } from '@/store/player-store';
 import { useAuthStore } from '@/store/auth-store';
 import { appToast as toast } from '@/components/ui/AppToaster';
@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface UploadResult {
   file: string;
   status: 'uploading' | 'success' | 'error' | 'duplicate';
+  progress?: number;
   error?: string;
   song?: any;
   selected?: boolean;
@@ -56,33 +57,44 @@ export default function UploadZone() {
     if (!valid.length) { toast.error('NO SUPPORTED FILES'); return; }
     setUploading(true);
     const baseIdx = resultsRef.current.length;
-    const newResults: UploadResult[] = valid.map(f => ({ file: f.name, status: 'uploading' as const, selected: true }));
+    const newResults: UploadResult[] = valid.map(f => ({ file: f.name, status: 'uploading' as const, selected: true, progress: 0 }));
     setResults(prev => [...prev, ...newResults]);
-    for (let i = 0; i < valid.length; i++) {
-      try {
-        const song = await uploadSong(valid[i]);
-        if ((song as any).duplicate) {
-          setResults(prev => prev.map((r, j) => j === baseIdx + i ? { ...r, status: 'duplicate' as const, song, warning: `Duplicate: ${song.title} by ${song.artist}` } : r));
-          if ((song as any).artworkUpdated) {
-            toast.success(`ARTWORK UPDATED: ${song.title}`);
-            try {
-              const { fetchSongs } = await import('@/lib/music-api');
-              const res = await fetchSongs();
-              usePlayerStore.getState().setSongs(res.songs);
-            } catch {}
+
+    const setResult = (i: number, patch: Partial<UploadResult>) => {
+      setResults(prev => prev.map((r, j) => j === baseIdx + i ? { ...r, ...patch } : r));
+    };
+
+    const CONCURRENCY = 3;
+    let next = 0;
+    const worker = async () => {
+      while (next < valid.length) {
+        const i = next++;
+        try {
+          const song = await uploadSongWithProgress(valid[i], pct => setResult(i, { progress: pct }));
+          if ((song as any).duplicate) {
+            setResult(i, { status: 'duplicate', song, warning: `Duplicate: ${song.title} by ${song.artist}` });
+            if ((song as any).artworkUpdated) {
+              toast.success(`ARTWORK UPDATED: ${song.title}`);
+              try {
+                const { fetchSongs } = await import('@/lib/music-api');
+                const res = await fetchSongs();
+                usePlayerStore.getState().setSongs(res.songs);
+              } catch {}
+            } else {
+              toast.warning(`DUPLICATE SKIPPED: ${song.title}`);
+            }
           } else {
-            toast.warning(`DUPLICATE SKIPPED: ${song.title}`);
+            setResult(i, { status: 'success', song });
+            addSong(song as any);
+            toast.success(`ADDED: ${song.title}`);
           }
-        } else {
-          setResults(prev => prev.map((r, j) => j === baseIdx + i ? { ...r, status: 'success' as const, song } : r));
-          addSong(song as any);
-          toast.success(`ADDED: ${song.title}`);
+        } catch (e: any) {
+          setResult(i, { status: 'error', error: e.message });
+          toast.error(`FAILED: ${valid[i].name}`);
         }
-      } catch (e: any) {
-        setResults(prev => prev.map((r, j) => j === baseIdx + i ? { ...r, status: 'error' as const, error: e.message } : r));
-        toast.error(`FAILED: ${valid[i].name}`);
       }
-    }
+    };
+    await Promise.all(Array.from({ length: Math.min(CONCURRENCY, valid.length) }, () => worker()));
     setUploading(false);
   };
 
@@ -242,7 +254,6 @@ export default function UploadZone() {
                   {r.status === 'success' && <CheckCircle size={12} className="text-emerald-400 flex-shrink-0" />}
                   {r.status === 'duplicate' && <Copy size={12} className="text-amber-400/60 flex-shrink-0" />}
                   {r.status === 'error' && <AlertCircle size={12} className="text-[#FF2D2D] flex-shrink-0" />}
-
                   {/* File info */}
                   <div className="flex-1 min-w-0">
                     <p className={`text-[10px] font-bold uppercase tracking-wider truncate ${
@@ -268,6 +279,11 @@ export default function UploadZone() {
                       {Math.floor(r.song.duration / 60)}:{String(Math.floor(r.song.duration % 60)).padStart(2, '0')}
                     </span>
                   ) : null}
+
+                  {/* Progress */}
+                  {r.status === 'uploading' && r.progress != null && (
+                    <span className="text-[9px] text-white/30 tabular-nums font-bold flex-shrink-0 w-9 text-right">{r.progress}%</span>
+                  )}
                 </div>
               ))}
             </div>

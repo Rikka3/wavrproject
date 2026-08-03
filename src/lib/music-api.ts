@@ -98,14 +98,34 @@ export async function fetchArtists(): Promise<string[]> {
 }
 
 export async function uploadSong(file: File): Promise<Song> {
-  const token = await getAuthToken();
-  const headers: Record<string, string> = {};
-  if (token) headers['Authorization'] = `Bearer ${token}`;
-  const formData = new FormData();
-  formData.append('file', file);
-  const res = await fetch(apiUrl('/upload'), { method: 'POST', body: formData, headers });
-  if (!res.ok) { const err = await res.json().catch(() => ({ error: 'Upload failed' })); throw new Error(err.error || `HTTP ${res.status}`); }
-  return res.json();
+  return uploadSongWithProgress(file);
+}
+
+export function uploadSongWithProgress(file: File, onProgress?: (percent: number) => void): Promise<Song> {
+  return (async () => {
+    const token = await getAuthToken();
+    return new Promise<Song>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', apiUrl('/upload'));
+      xhr.responseType = 'json';
+      if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      if (onProgress && xhr.upload) {
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable && e.total > 0) onProgress(Math.min(100, Math.round((e.loaded / e.total) * 100)));
+        };
+      }
+      xhr.onload = () => {
+        const body = xhr.response;
+        if (xhr.status >= 200 && xhr.status < 300) resolve(body as Song);
+        else reject(new Error((body && body.error) || `HTTP ${xhr.status}`));
+      };
+      xhr.onerror = () => reject(new Error('Network error during upload'));
+      xhr.ontimeout = () => reject(new Error('Upload timed out'));
+      const formData = new FormData();
+      formData.append('file', file);
+      xhr.send(formData);
+    });
+  })();
 }
 
 export async function batchUploadSongs(files: File[]): Promise<{ songs: any[]; added: number; duplicates: number }> {

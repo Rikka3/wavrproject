@@ -57,6 +57,18 @@ final-*.png
 soundwave-admin.png
 test-tone.wav
 
+# stray local workspace files (never part of the app)
+download/
+examples/
+worklog.md
+start-music-service.sh
+start-services.sh
+run-music-service.sh
+tests/
+mini-services/.gitkeep
+mini-services/music-proxy/
+/workspace-d1d5ea1f-a533-4a54-b458-f0294b85b9db (2)
+
 # vercel
 .vercel
 

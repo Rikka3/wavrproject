@@ -7,7 +7,6 @@ import AdminCodeDialog from './AdminCodeDialog';
 import { appToast as toast } from '@/components/ui/AppToaster';
 import { ListMusic, Plus, Trash2, ChevronRight, Play, X, Disc3, Clock, Pencil, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import TrackList from './TrackList';
 
 function PlaylistCard({ playlist, onOpen }: { playlist: Playlist; onOpen: (id: string) => void }) {
@@ -315,7 +314,7 @@ function PlaylistDetailView({ playlistId, onBack }: { playlistId: string; onBack
       )}
 
       {/* Track list */}
-      <ScrollArea className="flex-1 custom-scroll pb-24 md:pb-20">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scroll pb-24 md:pb-20">
         <TrackList
           songs={playlist?.songs}
           queueOverride={playlist?.songs}
@@ -323,7 +322,7 @@ function PlaylistDetailView({ playlistId, onBack }: { playlistId: string; onBack
           showRemove={true}
           emptyText="NO TRACKS YET"
         />
-      </ScrollArea>
+      </div>
 
       <AdminCodeDialog
         open={!!adminAction}
@@ -393,7 +392,7 @@ export default function PlaylistPanel() {
       </div>
 
       {/* Playlist list */}
-      <ScrollArea className="flex-1 custom-scroll pb-24 md:pb-20">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scroll pb-24 md:pb-20">
         {loading ? (
           <div className="space-y-1 p-1">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -419,7 +418,7 @@ export default function PlaylistPanel() {
             ))}
           </AnimatePresence>
         )}
-      </ScrollArea>
+      </div>
 
       {/* Create dialog */}
       <AnimatePresence>
