@@ -204,6 +204,15 @@ export default function Player() {
   const sv = useCallback((v: number[]) => setVolume(v[0]), [setVolume]);
   const VI = mu || vo === 0 ? VolumeX : vo < 0.5 ? Volume1 : Volume2;
 
+  const handlePrev = () => {
+    if (ct > 3) { getAudio().currentTime = 0; setCurrentTime(0); }
+    else prevSong();
+  };
+  const handleNext = () => {
+    if (rp === 'one') { getAudio().currentTime = 0; setCurrentTime(0); }
+    else nextSong();
+  };
+
   if (!song) return null;
   const tog = () => setPlaying(!ip);
   const isFav = song ? favorites.has(song.id) : false;
@@ -227,9 +236,9 @@ export default function Player() {
         <div className="flex-1 flex flex-col items-center gap-1 max-w-xl mx-auto">
           <div className="flex items-center gap-2">
             <button className={`h-8 w-8 flex items-center justify-center text-white/25 hover:text-white/70 ${sf ? '!text-[#FF2D2D]' : ''}`} onClick={toggleShuffle}><Shuffle size={13} strokeWidth={2} /></button>
-            <button className="h-8 w-8 flex items-center justify-center text-white/40 hover:text-white" onClick={prevSong}><SkipBack size={15} strokeWidth={2} /></button>
+            <button className="h-8 w-8 flex items-center justify-center text-white/40 hover:text-white" onClick={handlePrev}><SkipBack size={15} strokeWidth={2} /></button>
             <PlayBtn sz="h-9 w-9" isz={18} playing={ip} onToggle={tog} />
-            <button className="h-8 w-8 flex items-center justify-center text-white/40 hover:text-white" onClick={nextSong}><SkipForward size={15} strokeWidth={2} /></button>
+            <button className="h-8 w-8 flex items-center justify-center text-white/40 hover:text-white" onClick={handleNext}><SkipForward size={15} strokeWidth={2} /></button>
             <button className={`h-8 w-8 flex items-center justify-center text-white/25 hover:text-white/70 ${rp !== 'off' ? '!text-[#FF2D2D]' : ''}`} onClick={toggleRepeat}>{rp === 'one' ? <Repeat1 size={13} strokeWidth={2} /> : <Repeat size={13} strokeWidth={2} />}</button>
           </div>
           <div className="flex items-center gap-2 w-full text-[9px] text-white/20 uppercase tracking-wider">
@@ -264,7 +273,7 @@ export default function Player() {
               <p className="text-[8px] text-white/25 truncate uppercase">{song.artist}</p>
             </div>
             <PlayBtn sz="h-8 w-8" isz={14} playing={ip} onToggle={tog} />
-            <button className="h-10 w-10 flex items-center justify-center text-white/40 hover:text-white" onClick={nextSong}><SkipForward size={16} strokeWidth={2} /></button>
+            <button className="h-10 w-10 flex items-center justify-center text-white/40 hover:text-white" onClick={handleNext}><SkipForward size={16} strokeWidth={2} /></button>
             <button className="h-10 w-10 flex items-center justify-center text-white/40 hover:text-white" onClick={() => setFullscreen(true)}><ChevronDown size={18} className="rotate-180" /></button>
           </div>
         </motion.div>
@@ -311,9 +320,9 @@ export default function Player() {
             </div>
             <div className="flex items-center justify-center gap-5 mt-5">
               <button className={`h-11 w-11 flex items-center justify-center ${sf ? 'text-[#FF2D2D]' : 'text-white/25'}`} onClick={toggleShuffle}><Shuffle size={18} strokeWidth={2} /></button>
-              <button className="h-11 w-11 flex items-center justify-center text-white/40" onClick={prevSong}><SkipBack size={24} strokeWidth={2} /></button>
+              <button className="h-11 w-11 flex items-center justify-center text-white/40" onClick={handlePrev}><SkipBack size={24} strokeWidth={2} /></button>
               <PlayBtn sz="h-14 w-14" isz={28} playing={ip} onToggle={tog} />
-              <button className="h-11 w-11 flex items-center justify-center text-white/40" onClick={nextSong}><SkipForward size={24} strokeWidth={2} /></button>
+              <button className="h-11 w-11 flex items-center justify-center text-white/40" onClick={handleNext}><SkipForward size={24} strokeWidth={2} /></button>
               <button className={`h-11 w-11 flex items-center justify-center ${rp !== 'off' ? 'text-[#FF2D2D]' : 'text-white/25'}`} onClick={toggleRepeat}>{rp === 'one' ? <Repeat1 size={18} strokeWidth={2} /> : <Repeat size={18} strokeWidth={2} />}</button>
             </div>
           </div>

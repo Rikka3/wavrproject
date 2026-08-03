@@ -29,12 +29,14 @@ interface PlayerState {
   isUploading: boolean;
   uploadProgress: number;
   showSettings: boolean;
+  playlistQuery: string;
 
   // Player
   currentSong: Song | null;
   queue: Song[];
   queueIndex: number;
   isPlaying: boolean;
+  playingFromPlaylist: boolean;
   currentTime: number;
   duration: number;
   volume: number;
@@ -77,11 +79,12 @@ interface PlayerState {
   setIsUploading: (u: boolean) => void;
   setUploadProgress: (p: number) => void;
   setShowSettings: (s: boolean) => void;
+  setPlaylistQuery: (q: string) => void;
   addSong: (song: Song) => void;
   removeSong: (id: string) => void;
 
   // Player actions
-  playSong: (song: Song, playlist?: Song[]) => void;
+  playSong: (song: Song, playlist?: Song[], fromPlaylist?: boolean) => void;
   togglePlay: () => void;
   setPlaying: (p: boolean) => void;
   setCurrentTime: (t: number) => void;
@@ -134,12 +137,14 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   isUploading: false,
   uploadProgress: 0,
   showSettings: false,
+  playlistQuery: '',
 
   // Player initial state
   currentSong: null,
   queue: [],
   queueIndex: -1,
   isPlaying: false,
+  playingFromPlaylist: false,
   currentTime: 0,
   duration: 0,
   volume: 0.8,
@@ -182,6 +187,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   setIsUploading: (isUploading) => set({ isUploading }),
   setUploadProgress: (uploadProgress) => set({ uploadProgress }),
   setShowSettings: (showSettings) => set({ showSettings }),
+  setPlaylistQuery: (playlistQuery) => set({ playlistQuery }),
   addSong: (song) => set((s) => ({
     songs: [song, ...s.songs],
     filteredSongs: [song, ...s.filteredSongs]
@@ -194,7 +200,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   })),
 
   // Player actions
-  playSong: (song, playlist) => {
+  playSong: (song, playlist, fromPlaylist = false) => {
     const state = get();
     const queue = playlist || state.filteredSongs;
     const index = queue.findIndex(s => s.id === song.id);
@@ -203,6 +209,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       queue,
       queueIndex: index >= 0 ? index : 0,
       isPlaying: true,
+      playingFromPlaylist: !!fromPlaylist,
       currentTime: 0,
       showMobilePlayer: true,
     });
@@ -248,14 +255,15 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     if (candidates.length === 0 && s.repeat === 'all') {
       candidates = s.queue.filter(song => song.id !== s.currentSong!.id);
     }
-    const similar = pickNextSimilar(s.currentSong, candidates);
-    if (similar) {
-      const fromIndex = s.queue.findIndex(song => song.id === similar.id);
-      const q = [...s.queue];
-      const [moved] = q.splice(fromIndex, 1);
-      q.splice(next, 0, moved);
-      const curIdx = q.findIndex(song => song.id === s.currentSong!.id);
-      return { queue: q, queueIndex: curIdx, currentSong: q[curIdx], currentTime: 0, isPlaying: true };
+    if (!s.playingFromPlaylist) {
+      const similar = pickNextSimilar(s.currentSong, candidates);
+      if (similar) {
+        const fromIndex = s.queue.findIndex(song => song.id === similar.id);
+        const q = [...s.queue];
+        const [moved] = q.splice(fromIndex, 1);
+        q.splice(next, 0, moved);
+        return { queue: q, queueIndex: next, currentSong: q[next], currentTime: 0, isPlaying: true };
+      }
     }
     if (next >= s.queue.length) {
       if (s.repeat === 'all') next = 0;

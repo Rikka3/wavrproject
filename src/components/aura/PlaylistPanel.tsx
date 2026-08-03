@@ -5,7 +5,7 @@ import { fetchPlaylists, fetchPlaylist, createPlaylist, deletePlaylist, removeSo
 import { useAuthStore } from '@/store/auth-store';
 import AdminCodeDialog from './AdminCodeDialog';
 import { appToast as toast } from '@/components/ui/AppToaster';
-import { ListMusic, Plus, Trash2, ChevronRight, Play, X, Disc3, Clock, Pencil, Check } from 'lucide-react';
+import { ListMusic, Plus, Trash2, ChevronRight, Play, X, Disc3, Clock, Pencil, Check, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TrackList from './TrackList';
 
@@ -172,7 +172,7 @@ function PlaylistDetailView({ playlistId, onBack }: { playlistId: string; onBack
 
   const handlePlayAll = () => {
     if (!playlist?.songs?.length) return;
-    playSong(playlist.songs[0], playlist.songs);
+    playSong(playlist.songs[0], playlist.songs, true);
   };
 
   const handleRemoveSong = async (songId: string) => {
@@ -353,7 +353,7 @@ function PlaylistDetailView({ playlistId, onBack }: { playlistId: string; onBack
 }
 
 export default function PlaylistPanel() {
-  const { playlists, showCreatePlaylist, setShowCreatePlaylist, activePlaylistId, setActivePlaylistId } = usePlayerStore();
+  const { playlists, showCreatePlaylist, setShowCreatePlaylist, activePlaylistId, setActivePlaylistId, playlistQuery, setPlaylistQuery } = usePlayerStore();
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
@@ -375,13 +375,16 @@ export default function PlaylistPanel() {
     return <PlaylistDetailView playlistId={activePlaylistId} onBack={() => setActivePlaylistId(null)} />;
   }
 
+  const q = playlistQuery.trim().toLowerCase();
+  const visible = q ? playlists.filter(p => p.name.toLowerCase().includes(q)) : playlists;
+
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-2 px-1">
         <div>
           <h2 className="text-[12px] font-extrabold uppercase tracking-widest text-white">PLAYLISTS</h2>
-          <p className="brutal-label mt-0.5">{playlists.length} COLLECTIONS</p>
+          <p className="brutal-label mt-0.5">{visible.length} COLLECTIONS</p>
         </div>
         <button
           className="brutal-btn brutal-btn-sm flex items-center gap-1"
@@ -389,6 +392,17 @@ export default function PlaylistPanel() {
         >
           <Plus size={10} />NEW
         </button>
+      </div>
+
+      {/* Mobile search */}
+      <div className="md:hidden relative mb-2 px-1">
+        <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/25" strokeWidth={2} />
+        <input
+          value={playlistQuery} onChange={(e) => setPlaylistQuery(e.target.value)}
+          placeholder="SEARCH PLAYLISTS..."
+          className="brutal-input w-full h-9 pl-8 pr-8 text-[11px] font-bold uppercase tracking-wider"
+        />
+        {playlistQuery && <button onClick={() => setPlaylistQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/25 hover:text-white"><X size={12} /></button>}
       </div>
 
       {/* Playlist list */}
@@ -405,15 +419,15 @@ export default function PlaylistPanel() {
               </div>
             ))}
           </div>
-        ) : playlists.length === 0 ? (
+        ) : visible.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 px-4" style={{ border: '1px dashed rgba(255,255,255,0.08)' }}>
             <ListMusic size={24} className="text-white/6 mb-2" strokeWidth={1} />
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/15">NO PLAYLISTS</p>
-            <p className="text-[9px] text-white/8 uppercase tracking-widest mt-1">CREATE ONE TO GET STARTED</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/15">{q ? 'NO PLAYLISTS MATCH' : 'NO PLAYLISTS'}</p>
+            <p className="text-[9px] text-white/8 uppercase tracking-widest mt-1">{q ? 'TRY A DIFFERENT NAME' : 'CREATE ONE TO GET STARTED'}</p>
           </div>
         ) : (
           <AnimatePresence>
-            {playlists.map(pl => (
+            {visible.map(pl => (
               <PlaylistCard key={pl.id} playlist={pl} onOpen={(id) => setActivePlaylistId(id)} />
             ))}
           </AnimatePresence>
