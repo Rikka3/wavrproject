@@ -46,6 +46,7 @@ interface PlayerState {
   selectedGenre: string;
   currentTab: ViewTab;
   isLoading: boolean;
+  loadFailed: boolean;
   isUploading: boolean;
   uploadProgress: number;
   showSettings: boolean;
@@ -98,6 +99,7 @@ interface PlayerState {
   setSelectedGenre: (g: string) => void;
   setCurrentTab: (tab: ViewTab) => void;
   setIsLoading: (l: boolean) => void;
+  setLoadFailed: (f: boolean) => void;
   setIsUploading: (u: boolean) => void;
   setUploadProgress: (p: number) => void;
   setShowSettings: (s: boolean) => void;
@@ -158,6 +160,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   selectedGenre: '',
   currentTab: 'library',
   isLoading: false,
+  loadFailed: false,
   isUploading: false,
   uploadProgress: 0,
   showSettings: false,
@@ -210,6 +213,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   setSelectedGenre: (selectedGenre) => set({ selectedGenre }),
   setCurrentTab: (currentTab) => set({ currentTab }),
   setIsLoading: (isLoading) => set({ isLoading }),
+  setLoadFailed: (loadFailed) => set({ loadFailed }),
   setIsUploading: (isUploading) => set({ isUploading }),
   setUploadProgress: (uploadProgress) => set({ uploadProgress }),
   setShowSettings: (showSettings) => set({ showSettings }),

@@ -2,6 +2,7 @@
 import { Search, X } from 'lucide-react';
 import { usePlayerStore } from '@/store/player-store';
 import { fetchSongs } from '@/lib/music-api';
+import { appToast as toast } from '@/components/ui/AppToaster';
 import { useEffect, useState, useCallback, useRef } from 'react';
 
 export default function SearchBar() {
@@ -16,7 +17,7 @@ export default function SearchBar() {
       const query = g && !q ? '' : q;
       const res = await fetchSongs(query || undefined, g || undefined);
       setFilteredSongs(res.songs);
-    } catch (e: any) { console.error(e); }
+    } catch (e: any) { console.error(e); if (q || g) toast.error(e.message || 'SEARCH FAILED'); }
     setIsLoading(false);
   }, [setFilteredSongs, setIsLoading]);
 

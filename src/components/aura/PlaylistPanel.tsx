@@ -5,7 +5,7 @@ import { fetchPlaylists, fetchPlaylist, createPlaylist, deletePlaylist, removeSo
 import { useAuthStore } from '@/store/auth-store';
 import AdminCodeDialog from './AdminCodeDialog';
 import { appToast as toast } from '@/components/ui/AppToaster';
-import { ListMusic, Plus, Trash2, ChevronRight, Play, X, Disc3, Clock, Pencil, Check, Search, Globe, Lock, Settings2 } from 'lucide-react';
+import { ListMusic, Plus, Trash2, ChevronRight, Play, X, Disc3, Clock, Pencil, Check, Search, Globe, Lock, Settings2, WifiOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TrackList from './TrackList';
 
@@ -501,21 +501,25 @@ function PlaylistDetailView({ playlistId, onBack }: { playlistId: string; onBack
 export default function PlaylistPanel() {
   const { playlists, showCreatePlaylist, setShowCreatePlaylist, activePlaylistId, setActivePlaylistId, playlistQuery, setPlaylistQuery } = usePlayerStore();
   const [loading, setLoading] = useState(false);
-  const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    if (loaded) return;
     let cancelled = false;
     (async () => {
       setLoading(true);
       try {
         const pls = await fetchPlaylists();
         if (!cancelled) usePlayerStore.getState().setPlaylists(pls);
-      } catch (err) { console.error('Failed to load playlists:', err); }
-      if (!cancelled) { setLoading(false); setLoaded(true); }
+        if (!cancelled) setFailed(false);
+      } catch (err) {
+        console.error('Failed to load playlists:', err);
+        if (!cancelled) setFailed(true);
+      }
+      if (!cancelled) setLoading(false);
     })();
     return () => { cancelled = true; };
-  }, [loaded]);
+  }, [reloadKey]);
 
   if (activePlaylistId) {
     return <PlaylistDetailView playlistId={activePlaylistId} onBack={() => setActivePlaylistId(null)} />;
@@ -552,6 +556,15 @@ export default function PlaylistPanel() {
       </div>
 
       {/* Playlist list */}
+      {failed && (
+        <button
+          onClick={() => setReloadKey(k => k + 1)}
+          className="brutal-btn brutal-btn-sm w-full flex items-center justify-center gap-1.5 mb-2 shrink-0"
+          style={{ borderColor: 'rgb(var(--rgb-accent) / 0.4)', color: 'var(--accent)' }}
+        >
+          <WifiOff size={11} />COULDN'T REACH SERVER — RETRY
+        </button>
+      )}
       <div className="flex-1 min-h-0 overflow-y-auto custom-scroll pb-[calc(96px+env(safe-area-inset-bottom,0px))] md:pb-20">
         {loading ? (
           <div className="space-y-1 p-1">

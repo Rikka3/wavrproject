@@ -3,6 +3,18 @@ import { useAuthStore } from '@/store/auth-store';
 
 const PORT = 'XTransformPort=3003';
 const BASE_URL = (process.env.NEXT_PUBLIC_MUSIC_API_URL || '').replace(/\/$/, '') || 'http://localhost:3003';
+const REQUEST_TIMEOUT_MS = 15_000;
+const UPLOAD_TIMEOUT_MS = 120_000;
+
+async function fetchWithTimeout(url: string, init?: RequestInit): Promise<Response> {
+  const hasSignal = !!init?.signal;
+  try {
+    return await fetch(url, { ...init, signal: init?.signal ?? AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+  } catch (e: any) {
+    if (e?.name === 'AbortError' && !hasSignal) throw new Error('Request timed out');
+    throw e;
+  }
+}
 
 export interface Song {
   id: string; title: string; artist: string; album: string;
@@ -59,7 +71,7 @@ async function apiFetch<T>(path: string, options?: RequestInit, params?: Record<
   }
   const finalParams: Record<string, string> = { ...(params || {}) };
   if (adminCode) finalParams['admin_code'] = adminCode;
-  const res = await fetch(apiUrl(path, finalParams), { ...options, headers });
+  const res = await fetchWithTimeout(apiUrl(path, finalParams), { ...options, headers });
   if (!res.ok) { const err = await res.json().catch(() => ({ error: 'Request failed' })); throw new Error(err.error || `HTTP ${res.status}`); }
   return res.json();
 }
@@ -85,7 +97,7 @@ export async function adminDeleteSong(id: string, adminCode: string): Promise<vo
   headers['X-Admin-Code'] = adminCode;
   const qs = new URLSearchParams(PORT);
   qs.set('admin_code', adminCode);
-  const res = await fetch(`${BASE_URL}/songs/${id}/admin-delete?${qs.toString()}`, { method: 'DELETE', headers });
+  const res = await fetchWithTimeout(`${BASE_URL}/songs/${id}/admin-delete?${qs.toString()}`, { method: 'DELETE', headers });
   if (!res.ok) { const err = await res.json().catch(() => ({ error: 'Failed' })); throw new Error(err.error || `HTTP ${res.status}`); }
 }
 
@@ -109,6 +121,7 @@ export function uploadSongWithProgress(file: File, onProgress?: (percent: number
     return new Promise<Song>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open('POST', apiUrl('/upload'));
+      xhr.timeout = UPLOAD_TIMEOUT_MS;
       xhr.responseType = 'json';
       if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
       if (onProgress && xhr.upload) {
@@ -136,7 +149,7 @@ export async function batchUploadSongs(files: File[]): Promise<{ songs: any[]; a
   if (token) headers['Authorization'] = `Bearer ${token}`;
   const formData = new FormData();
   for (const file of files) formData.append('files', file);
-  const res = await fetch(apiUrl('/upload/batch'), { method: 'POST', body: formData, headers });
+  const res = await fetchWithTimeout(apiUrl('/upload/batch'), { method: 'POST', body: formData, headers });
   if (!res.ok) { const err = await res.json().catch(() => ({ error: 'Batch upload failed' })); throw new Error(err.error || `HTTP ${res.status}`); }
   return res.json();
 }

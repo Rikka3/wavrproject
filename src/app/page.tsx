@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useCallback, useState } from 'react';
-import { Music, Filter, RefreshCw, Loader2, Settings } from 'lucide-react';
+import { useEffect, useCallback, useState, useRef } from 'react';
+import { Music, Filter, RefreshCw, Loader2, Settings, WifiOff } from 'lucide-react';
 import { usePlayerStore } from '@/store/player-store';
 import { fetchSongs, fetchGenres, fetchArtists, rescanLibrary } from '@/lib/music-api';
+import { loadCachedCatalog, saveCachedCatalog } from '@/lib/catalog-cache';
 import Sidebar from '@/components/aura/Sidebar';
 import MobileNav from '@/components/aura/MobileNav';
 import TrackList from '@/components/aura/TrackList';
@@ -23,28 +24,61 @@ import AppToaster from '@/components/ui/AppToaster';
 import { appToast as toast } from '@/components/ui/AppToaster';
 
 export default function Home() {
-  const { currentTab, setIsLoading, setSongs, setGenres, setArtists, filteredSongs, songs, showSettings, setShowSettings, theme, font } = usePlayerStore();
+  const { currentTab, setIsLoading, setSongs, setGenres, setArtists, filteredSongs, songs, showSettings, setShowSettings, theme, font, loadFailed, setLoadFailed } = usePlayerStore();
   const [scanning, setScanning] = useState(false);
+  const retryAttemptsRef = useRef(0);
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cacheHydratedRef = useRef(false);
+  const runLoadRef = useRef<(showSpinner: boolean) => Promise<void>>(async () => {});
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     document.documentElement.dataset.font = font;
   }, [theme, font]);
-  const loadData = useCallback(async () => {
-    setIsLoading(true);
+
+  useEffect(() => () => { if (retryTimerRef.current) clearTimeout(retryTimerRef.current); }, []);
+
+  const runLoad = useCallback(async (showSpinner: boolean) => {
+    if (showSpinner) setIsLoading(true);
     try {
       const [songsRes, genres, artists] = await Promise.all([fetchSongs(), fetchGenres(), fetchArtists()]);
       setSongs(songsRes.songs); setGenres(genres); setArtists(artists);
-    } catch (e) { console.error('Failed to load data:', e); }
+      saveCachedCatalog(songsRes.songs, genres, artists);
+      setLoadFailed(false);
+      retryAttemptsRef.current = 0;
+      if (retryTimerRef.current) { clearTimeout(retryTimerRef.current); retryTimerRef.current = null; }
+    } catch (e) {
+      console.error('Failed to load data:', e);
+      setLoadFailed(true);
+      const attempt = retryAttemptsRef.current + 1;
+      if (attempt <= 3) {
+        retryAttemptsRef.current = attempt;
+        if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
+        retryTimerRef.current = setTimeout(() => { runLoadRef.current(true); }, [2000, 5000, 10000][attempt - 1]);
+      }
+    }
     setIsLoading(false);
-  }, [setSongs, setGenres, setArtists, setIsLoading]);
+  }, [setSongs, setGenres, setArtists, setLoadFailed, setIsLoading]);
+  useEffect(() => { runLoadRef.current = runLoad; }, [runLoad]);
 
-  // Load the catalog on mount, and refetch once auth settles or the account
-  // changes so a pre-auth fetch can never leave a stale view behind.
-  // Idempotent: the catalog is shared across accounts.
+  const loadData = useCallback(() => { runLoad(true); }, [runLoad]);
+
+  // Serve the last known catalog instantly on mount, then refresh it live.
+  // Refetch once auth settles so a pre-auth fetch can never leave a stale view.
   const authUser = useAuthStore(s => s.user);
   const authLoading = useAuthStore(s => s.loading);
-  useEffect(() => { loadData(); }, [loadData, authUser?.uid, authLoading]);
+  useEffect(() => {
+    if (!cacheHydratedRef.current) {
+      cacheHydratedRef.current = true;
+      const cached = loadCachedCatalog();
+      if (cached) {
+        setSongs(cached.songs); setGenres(cached.genres); setArtists(cached.artists);
+        runLoad(false);
+        return;
+      }
+    }
+    runLoad(true);
+  }, [runLoad, setSongs, setGenres, setArtists, authUser?.uid, authLoading]);
 
   const handleRescan = async () => {
     if (scanning) return;
@@ -103,6 +137,15 @@ export default function Home() {
             <AnimatePresence mode="wait">
               {currentTab === 'library' && (
                 <motion.div key="library" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full flex flex-col">
+                  {loadFailed && (
+                    <button
+                      onClick={loadData}
+                      className="brutal-btn brutal-btn-sm w-full flex items-center justify-center gap-1.5 mb-2 shrink-0"
+                      style={{ borderColor: 'rgb(var(--rgb-accent) / 0.4)', color: 'var(--accent)' }}
+                    >
+                      <WifiOff size={11} />COULDN'T REACH SERVER — RETRY
+                    </button>
+                  )}
                   <div className="md:hidden flex items-center justify-between mb-1.5 px-1">
                     <div>
                       <h2 className="text-[12px] font-extrabold uppercase tracking-widest text-foreground">YOUR LIBRARY</h2>
