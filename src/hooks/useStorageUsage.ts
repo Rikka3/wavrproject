@@ -10,7 +10,10 @@ export interface StorageUsage {
   pct: number;
 }
 
-function fallbackUsage(): number {
+// navigator.storage.estimate() does NOT include localStorage usage in most
+// browsers, and this app stores everything in localStorage — so we measure
+// localStorage directly and only use estimate() for the quota denominator.
+function localStorageUsage(): number {
   let total = 0;
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
@@ -21,24 +24,30 @@ function fallbackUsage(): number {
   return total;
 }
 
+async function estimateQuota(): Promise<number> {
+  try {
+    if (typeof navigator !== 'undefined' && navigator.storage?.estimate) {
+      const est = await navigator.storage.estimate();
+      if (est.quota && est.quota > 0) return est.quota;
+    }
+  } catch {
+    // ignore, use fallback
+  }
+  return FALLBACK_QUOTA;
+}
+
 export function useStorageUsage(): StorageUsage | null {
   const [usage, setUsage] = useState<StorageUsage | null>(null);
 
   const refresh = useCallback(async () => {
     try {
-      if (typeof navigator !== 'undefined' && navigator.storage?.estimate) {
-        const est = await navigator.storage.estimate();
-        if (est.usage != null && est.quota != null && est.quota > 0) {
-          setUsage({ usage: est.usage, quota: est.quota, pct: Math.min(100, (est.usage / est.quota) * 100) });
-          return;
-        }
-      }
-      if (typeof localStorage !== 'undefined') {
-        const used = fallbackUsage();
-        setUsage({ usage: used, quota: FALLBACK_QUOTA, pct: Math.min(100, (used / FALLBACK_QUOTA) * 100) });
+      if (typeof localStorage === 'undefined') {
+        setUsage(null);
         return;
       }
-      setUsage(null);
+      const quota = await estimateQuota();
+      const used = localStorageUsage();
+      setUsage({ usage: used, quota, pct: Math.min(100, (used / quota) * 100) });
     } catch {
       setUsage(null);
     }

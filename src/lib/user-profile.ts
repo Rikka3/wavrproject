@@ -1,11 +1,12 @@
 import type { Song } from '@/lib/music-api';
 
 export const PROFILE_VERSION = 1;
-export const PROFILE_MIN_PLAYS = 5;
+export const PROFILE_MIN_PLAYS = 3;
 export const PROFILE_MAX_RECENT = 50;
 export const PROFILE_DECAY = 0.9;
 export const PROFILE_PRUNE = 0.5;
 export const MIX_CAP = 20;
+export const MIX_MIN_SONGS = 3;
 export const MIX_MAX_PLAYLISTS = 6;
 
 export interface UserProfile {
@@ -191,7 +192,7 @@ export function generateForYouPlaylists(
     MIX_CAP,
     seed
   );
-  if (onRepeat.length >= 4) {
+  if (onRepeat.length >= MIX_MIN_SONGS) {
     list.push({ id: 'foryou:on-repeat', name: 'ON REPEAT', description: 'YOUR MOST PLAYED TRACKS', songs: onRepeat });
   }
 
@@ -200,7 +201,7 @@ export function generateForYouPlaylists(
     const pool = songs.filter(s => normKey(s.genre) === g);
     const label = pool[0]?.genre || g;
     const mix = pick(pool, s => playScore(s, profile) + affinityScore(s, profile), MIX_CAP, seed + i);
-    if (mix.length >= 4) {
+    if (mix.length >= MIX_MIN_SONGS) {
       list.push({ id: `foryou:mix-${i}`, name: `DAILY MIX ${i + 1}`, description: `MIXED FOR YOU // ${label.toUpperCase()}`, songs: mix });
     }
   });
@@ -210,7 +211,7 @@ export function generateForYouPlaylists(
     const pool = songs.filter(s => normKey(s.artist) === a);
     const label = pool[0]?.artist || a;
     const mix = pick(pool, s => playScore(s, profile) + affinityScore(s, profile), MIX_CAP, seed + 10 + i);
-    if (mix.length >= 4) {
+    if (mix.length >= MIX_MIN_SONGS) {
       list.push({ id: `foryou:artist-${i}`, name: 'ARTIST MIX', description: `${label.toUpperCase()} // YOUR TOP PICKS`, songs: mix });
     }
   });
@@ -226,7 +227,7 @@ export function generateForYouPlaylists(
     MIX_CAP,
     seed + 100
   );
-  if (discovery.length >= 4) {
+  if (discovery.length >= MIX_MIN_SONGS) {
     list.push({ id: 'foryou:discovery', name: 'DISCOVERY WEEKLY', description: 'NEW TRACKS FOR YOU', songs: discovery });
   }
 

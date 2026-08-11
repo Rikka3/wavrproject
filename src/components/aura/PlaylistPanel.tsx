@@ -526,6 +526,18 @@ function ForYouSection({ playlists, onOpen }: { playlists: ForYouPlaylist[]; onO
   );
 }
 
+function ForYouHint() {
+  return (
+    <div className="mb-3">
+      <p className="brutal-label px-1 mb-1">RECOMMENDED FOR YOU</p>
+      <div className="flex items-center gap-3 px-3 py-2.5" style={{ border: '1px dashed rgb(var(--rgb-foreground) / 0.12)' }}>
+        <Sparkles size={14} className="text-foreground/25 flex-shrink-0" strokeWidth={1.5} />
+        <p className="text-[9px] text-foreground/25 uppercase tracking-wider">START LISTENING — PLAY A FEW TRACKS TO UNLOCK YOUR MIXES</p>
+      </div>
+    </div>
+  );
+}
+
 function ForYouDetailView({ playlist, onBack }: { playlist: ForYouPlaylist; onBack: () => void }) {
   const playSong = usePlayerStore(s => s.playSong);
   const totalDuration = playlist.songs.reduce((acc, s) => acc + (s.duration || 0), 0);
@@ -584,9 +596,16 @@ export default function PlaylistPanel() {
   const [reloadKey, setReloadKey] = useState(0);
   const [activeForYou, setActiveForYou] = useState<ForYouPlaylist | null>(null);
 
+  const effectiveProfile = useMemo(() => {
+    const own = loadProfile(user?.uid);
+    if (own.plays > 0 || !user?.uid) return own;
+    const anon = loadProfile(null);
+    return anon.plays > 0 ? anon : own;
+  }, [user?.uid, profileVersion]);
+
   const forYou = useMemo(
-    () => generateForYouPlaylists(songs, loadProfile(user?.uid)),
-    [songs, user?.uid, profileVersion]
+    () => generateForYouPlaylists(songs, effectiveProfile),
+    [songs, effectiveProfile]
   );
 
   useEffect(() => {
@@ -655,7 +674,11 @@ export default function PlaylistPanel() {
         </button>
       )}
       <div className="flex-1 min-h-0 overflow-y-auto custom-scroll pb-[calc(96px+env(safe-area-inset-bottom,0px))] md:pb-20">
-        {forYou && forYou.length > 0 && <ForYouSection playlists={forYou} onOpen={setActiveForYou} />}
+        {forYou && forYou.length > 0 ? (
+          <ForYouSection playlists={forYou} onOpen={setActiveForYou} />
+        ) : (
+          songs.length > 0 && <ForYouHint />
+        )}
         {loading ? (
           <div className="space-y-1 p-1">
             {Array.from({ length: 3 }).map((_, i) => (
