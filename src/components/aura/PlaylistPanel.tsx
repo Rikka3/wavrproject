@@ -1,13 +1,14 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { usePlayerStore } from '@/store/player-store';
 import { fetchPlaylists, fetchPlaylist, createPlaylist, deletePlaylist, removeSongFromPlaylist, updatePlaylist, type Playlist, type Song } from '@/lib/music-api';
 import { useAuthStore } from '@/store/auth-store';
 import AdminCodeDialog from './AdminCodeDialog';
 import { appToast as toast } from '@/components/ui/AppToaster';
-import { ListMusic, Plus, Trash2, ChevronRight, Play, X, Disc3, Clock, Pencil, Check, Search, Globe, Lock, Settings2, WifiOff } from 'lucide-react';
+import { ListMusic, Plus, Trash2, ChevronRight, Play, X, Disc3, Clock, Pencil, Check, Search, Globe, Lock, Settings2, WifiOff, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TrackList from './TrackList';
+import { loadProfile, generateForYouPlaylists, type ForYouPlaylist } from '@/lib/user-profile';
 
 function isPlaylistOwner(playlist: Playlist, uid?: string | null): boolean {
   return !!uid && !!playlist.user_id && playlist.user_id === uid;
@@ -498,11 +499,95 @@ function PlaylistDetailView({ playlistId, onBack }: { playlistId: string; onBack
   );
 }
 
+function ForYouSection({ playlists, onOpen }: { playlists: ForYouPlaylist[]; onOpen: (p: ForYouPlaylist) => void }) {
+  return (
+    <div className="mb-3">
+      <p className="brutal-label px-1 mb-1">RECOMMENDED FOR YOU</p>
+      <div className="space-y-1">
+        {playlists.map(p => (
+          <button
+            key={p.id}
+            onClick={() => onOpen(p)}
+            className="w-full flex items-center gap-3 px-3 py-2.5 text-left cursor-pointer hover:bg-foreground/[0.03] transition-all"
+            style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.06)' }}
+          >
+            <div className="w-10 h-10 flex items-center justify-center flex-shrink-0" style={{ border: '1px solid rgb(var(--rgb-accent) / 0.35)', background: 'rgb(var(--rgb-accent) / 0.08)' }}>
+              <Sparkles size={14} className="text-(--accent)" strokeWidth={1.5} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[11px] font-bold text-foreground/80 truncate uppercase tracking-wide">{p.name}</p>
+              <p className="text-[9px] text-foreground/20 uppercase tracking-wider mt-0.5 truncate">{p.description}{' // '}{p.songs.length} TRACKS</p>
+            </div>
+            <ChevronRight size={12} className="text-foreground/8 flex-shrink-0" />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ForYouDetailView({ playlist, onBack }: { playlist: ForYouPlaylist; onBack: () => void }) {
+  const playSong = usePlayerStore(s => s.playSong);
+  const totalDuration = playlist.songs.reduce((acc, s) => acc + (s.duration || 0), 0);
+
+  const handlePlayAll = () => {
+    if (!playlist.songs.length) return;
+    playSong(playlist.songs[0], playlist.songs, true);
+  };
+
+  return (
+    <div className="h-full flex flex-col">
+      {/* Back button */}
+      <div className="flex items-center gap-2 px-1 mb-2">
+        <button className="text-foreground/30 hover:text-foreground text-[10px] uppercase font-bold tracking-wider flex items-center gap-1" onClick={onBack}>
+          <X size={12} />BACK
+        </button>
+      </div>
+
+      {/* Mix header */}
+      <div className="px-1 mb-3">
+        <h2 className="text-[13px] font-extrabold uppercase tracking-widest text-foreground flex items-center gap-2">
+          <Sparkles size={13} className="text-(--accent)" strokeWidth={2} />
+          {playlist.name}
+        </h2>
+        <p className="text-[9px] text-foreground/25 uppercase tracking-wider mt-0.5">{playlist.description}</p>
+      </div>
+
+      {/* Stats + Play button */}
+      <div className="flex items-center gap-4 px-1 mb-3">
+        <button
+          className="h-8 px-3 flex items-center gap-1.5 text-[10px] uppercase font-bold text-foreground hover:text-(--accent) transition-colors"
+          style={{ border: '1px solid rgb(var(--rgb-foreground) / 0.2)', background: 'rgb(var(--rgb-foreground) / 0.04)' }}
+          onClick={handlePlayAll}
+        >
+          <Play size={11} fill="currentColor" />PLAY ALL
+        </button>
+        <div className="flex items-center gap-3 text-[9px] text-foreground/15 uppercase tracking-wider">
+          <span className="flex items-center gap-1"><Disc3 size={9} />{playlist.songs.length} TRACKS</span>
+          <span className="flex items-center gap-1"><Clock size={9} />{Math.floor(totalDuration / 60)}:{String(Math.floor(totalDuration % 60)).padStart(2, '0')}</span>
+        </div>
+      </div>
+
+      {/* Track list */}
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scroll pb-[calc(96px+env(safe-area-inset-bottom,0px))] md:pb-20">
+        <TrackList songs={playlist.songs} queueOverride={playlist.songs} emptyText="NO TRACKS YET" />
+      </div>
+    </div>
+  );
+}
+
 export default function PlaylistPanel() {
-  const { playlists, showCreatePlaylist, setShowCreatePlaylist, activePlaylistId, setActivePlaylistId, playlistQuery, setPlaylistQuery } = usePlayerStore();
+  const { playlists, showCreatePlaylist, setShowCreatePlaylist, activePlaylistId, setActivePlaylistId, playlistQuery, setPlaylistQuery, songs, profileVersion } = usePlayerStore();
+  const user = useAuthStore(s => s.user);
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  const [activeForYou, setActiveForYou] = useState<ForYouPlaylist | null>(null);
+
+  const forYou = useMemo(
+    () => generateForYouPlaylists(songs, loadProfile(user?.uid)),
+    [songs, user?.uid, profileVersion]
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -523,6 +608,10 @@ export default function PlaylistPanel() {
 
   if (activePlaylistId) {
     return <PlaylistDetailView playlistId={activePlaylistId} onBack={() => setActivePlaylistId(null)} />;
+  }
+
+  if (activeForYou) {
+    return <ForYouDetailView playlist={activeForYou} onBack={() => setActiveForYou(null)} />;
   }
 
   const q = playlistQuery.trim().toLowerCase();
@@ -566,6 +655,7 @@ export default function PlaylistPanel() {
         </button>
       )}
       <div className="flex-1 min-h-0 overflow-y-auto custom-scroll pb-[calc(96px+env(safe-area-inset-bottom,0px))] md:pb-20">
+        {forYou && forYou.length > 0 && <ForYouSection playlists={forYou} onOpen={setActiveForYou} />}
         {loading ? (
           <div className="space-y-1 p-1">
             {Array.from({ length: 3 }).map((_, i) => (

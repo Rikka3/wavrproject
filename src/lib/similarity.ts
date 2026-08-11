@@ -1,4 +1,5 @@
 import type { Song } from '@/lib/music-api';
+import { affinityScore, type UserProfile } from '@/lib/user-profile';
 
 const WEIGHTS = {
   songType: 30,
@@ -37,12 +38,19 @@ export function similarityScore(a: Song, b: Song): number {
 export function pickNextSimilar(
   current: Song,
   candidates: Song[],
+  profile?: UserProfile | null,
   excludeIds?: ReadonlySet<string>
 ): Song | null {
   if (!candidates.length) return null;
+  const recent = new Set(profile?.recent || []);
   const scored = candidates
     .filter(s => s.id !== current.id && !excludeIds?.has(s.id))
-    .map(s => ({ song: s, score: similarityScore(current, s) }))
+    .map(s => {
+      let score = similarityScore(current, s);
+      if (profile) score += affinityScore(s, profile) * 0.8;
+      if (recent.has(s.id)) score -= 60;
+      return { song: s, score };
+    })
     .sort((x, y) => y.score - x.score);
   if (!scored.length) return null;
   if (scored.length === 1 || scored[1].score === 0) return scored[0].song;

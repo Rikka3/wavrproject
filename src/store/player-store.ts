@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import type { Song, Playlist } from '@/lib/music-api';
 import { pickNextSimilar } from '@/lib/similarity';
+import { loadProfile, recordListen } from '@/lib/user-profile';
+import { useAuthStore } from '@/store/auth-store';
 
 export type ViewTab = 'library' | 'search' | 'playlists' | 'upload';
 export type RepeatMode = 'off' | 'all' | 'one';
@@ -36,6 +38,10 @@ function loadFont(): FontName {
   } catch { return 'default'; }
 }
 
+function listenUid(): string {
+  return useAuthStore.getState().user?.uid || 'anon';
+}
+
 interface PlayerState {
   // Library
   songs: Song[];
@@ -69,6 +75,7 @@ interface PlayerState {
   font: FontName;
   isFullscreen: boolean;
   showMobilePlayer: boolean;
+  profileVersion: number;
 
   // Lyrics
   showLyrics: boolean;
@@ -183,6 +190,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   font: loadFont(),
   isFullscreen: false,
   showMobilePlayer: false,
+  profileVersion: 0,
 
   // Lyrics initial state
   showLyrics: false,
@@ -234,6 +242,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     const state = get();
     const queue = playlist || state.filteredSongs;
     const index = queue.findIndex(s => s.id === song.id);
+    const isNew = state.currentSong?.id !== song.id;
+    if (isNew) recordListen(song, listenUid());
     set({
       currentSong: song,
       queue,
@@ -242,6 +252,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       playingFromPlaylist: !!fromPlaylist,
       currentTime: 0,
       showMobilePlayer: true,
+      profileVersion: state.profileVersion + (isNew ? 1 : 0),
     });
   },
   togglePlay: () => set((s) => ({ isPlaying: !s.isPlaying })),
@@ -284,31 +295,36 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     try { localStorage.setItem(FONT_STORAGE_KEY, font); } catch {}
     set({ font });
   },
-  nextSong: () => set((s) => {
-    if (s.queue.length === 0) return {};
-    if (s.repeat === 'one') return { queueIndex: s.queueIndex, currentTime: 0 };
-    if (!s.currentSong) return { queueIndex: s.queueIndex + 1, currentTime: 0, isPlaying: false };
-    let next = s.queueIndex + 1;
-    let candidates = s.queue.slice(next);
-    if (candidates.length === 0 && s.repeat === 'all') {
-      candidates = s.queue.filter(song => song.id !== s.currentSong!.id);
-    }
-    if (!s.playingFromPlaylist) {
-      const similar = pickNextSimilar(s.currentSong, candidates);
-      if (similar) {
-        const fromIndex = s.queue.findIndex(song => song.id === similar.id);
-        const q = [...s.queue];
-        const [moved] = q.splice(fromIndex, 1);
-        q.splice(next, 0, moved);
-        return { queue: q, queueIndex: next, currentSong: q[next], currentTime: 0, isPlaying: true };
+  nextSong: () => {
+    const profile = loadProfile(listenUid());
+    set((s) => {
+      if (s.queue.length === 0) return {};
+      if (s.repeat === 'one') return { queueIndex: s.queueIndex, currentTime: 0 };
+      if (!s.currentSong) return { queueIndex: s.queueIndex + 1, currentTime: 0, isPlaying: false };
+      let next = s.queueIndex + 1;
+      let candidates = s.queue.slice(next);
+      if (candidates.length === 0 && s.repeat === 'all') {
+        candidates = s.queue.filter(song => song.id !== s.currentSong!.id);
       }
-    }
-    if (next >= s.queue.length) {
-      if (s.repeat === 'all') next = 0;
-      else return { isPlaying: false };
-    }
-    return { queueIndex: next, currentSong: s.queue[next], currentTime: 0, isPlaying: true };
-  }),
+      if (!s.playingFromPlaylist) {
+        const similar = pickNextSimilar(s.currentSong, candidates, profile);
+        if (similar) {
+          const fromIndex = s.queue.findIndex(song => song.id === similar.id);
+          const q = [...s.queue];
+          const [moved] = q.splice(fromIndex, 1);
+          q.splice(next, 0, moved);
+          recordListen(q[next], listenUid());
+          return { queue: q, queueIndex: next, currentSong: q[next], currentTime: 0, isPlaying: true, profileVersion: s.profileVersion + 1 };
+        }
+      }
+      if (next >= s.queue.length) {
+        if (s.repeat === 'all') next = 0;
+        else return { isPlaying: false };
+      }
+      recordListen(s.queue[next], listenUid());
+      return { queueIndex: next, currentSong: s.queue[next], currentTime: 0, isPlaying: true, profileVersion: s.profileVersion + 1 };
+    });
+  },
   prevSong: () => set((s) => {
     if (s.queue.length === 0) return {};
     if (s.currentTime > 3) return { currentTime: 0 };

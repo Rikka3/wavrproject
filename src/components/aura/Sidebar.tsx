@@ -6,6 +6,7 @@ import { useState, useCallback } from 'react';
 import { fetchDuplicates, deleteDuplicates } from '@/lib/music-api';
 import { appToast as toast } from '@/components/ui/AppToaster';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useStorageUsage } from '@/hooks/useStorageUsage';
 
 export default function Sidebar() {
   const { currentTab, setCurrentTab, songs, genres, selectedGenre, setSelectedGenre, playlists, setActivePlaylistId, setShowSettings } = usePlayerStore();
@@ -19,6 +20,8 @@ export default function Sidebar() {
   const totalDuration = songs.reduce((a, s) => a + (s.duration || 0), 0);
   const hrs = Math.floor(totalDuration / 3600);
   const mins = Math.floor((totalDuration % 3600) / 60);
+  const storage = useStorageUsage();
+  const storagePct = storage ? Math.round(storage.pct * 10) / 10 : null;
 
   const tabs = [
     { id: 'library' as ViewTab, icon: Library, label: 'LIBRARY' },
@@ -174,6 +177,19 @@ export default function Sidebar() {
                   </button>
                 );
               })}
+            </div>
+          </div>
+        )}
+
+        {/* Storage usage */}
+        {storagePct !== null && (
+          <div className="px-3 py-2 space-y-1.5" style={{ borderTop: '1px solid rgb(var(--rgb-foreground) / 0.06)' }}>
+            <div className="flex items-center justify-between">
+              <p className="brutal-label">STORAGE</p>
+              <span className="text-[9px] font-bold text-foreground tabular-nums">USED {storagePct}%</span>
+            </div>
+            <div className="h-[2px] w-full" style={{ background: 'rgb(var(--rgb-foreground) / 0.08)' }}>
+              <div className="h-full transition-all duration-500" style={{ width: `${Math.min(100, storagePct)}%`, background: 'var(--accent)' }} />
             </div>
           </div>
         )}
