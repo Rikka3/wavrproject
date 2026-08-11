@@ -3,6 +3,7 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  NEXT_PUBLIC_MUSIC_API_URL = "https://wavrproject.duckdns.org"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
